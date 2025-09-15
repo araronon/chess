@@ -20,7 +20,7 @@ public class PieceMovesCalculator {
         ChessPiece piece = board.getPiece(myPosition);
         switch(piece.getPieceType()) {
             case ChessPiece.PieceType.BISHOP:
-                availableMoves = new BishopMovesCalculator(board, myPosition);
+                availableMoves = new BishopMovesCalculator(board, myPosition).getMoves();
                 break;
 
 
@@ -34,19 +34,90 @@ public class PieceMovesCalculator {
 
 class BishopMovesCalculator extends PieceMovesCalculator {
 
+    private Collection<ChessMove> moves;
+
     public BishopMovesCalculator(ChessBoard board, ChessPosition myPosition) {
         super(board, myPosition);
     }
 
-    int currentrow = myPosition.getRow();
-    int currentcol = myPosition.getColumn();
-    // Iterate from the piece going from the inside out in all directions available (4 for bishop), stopping when hitting a piece or an edge. If you find a piece that is the enemy's then include it as a possible move (for capture)
-    // Append all these possible moves to the Collection of Chess Moves and return the Collection.
+    public Collection<ChessMove> getMoves() {
+        int currentRow = myPosition.getRow();
+        int currentCol = myPosition.getColumn();
+        ChessPiece currentPiece = board.getPiece(myPosition);
+        // Iterate from the piece going from the inside out in all directions available (4 for bishop), stopping when hitting a piece or an edge. If you find a piece that is the enemy's then include it as a possible move (for capture)
+        // Append all these possible moves to the Collection of Chess Moves and return the Collection.
 
-    // diag up
-    for (int i = 1; i < 10; i++) {
-        int checkcol = currentcol + i;
-        int checkrow = currentrow + i;
-        if ()
-    }
+        // diag up - for-loop
+        int[][] directions = {{1,1},{1,-1},{-1}}
+        for (int i = 1; i < 10; i++) {
+            int checkCol = currentCol + i;
+            int checkRow = currentRow + i;
+            ChessPosition checkPos = new ChessPosition(checkRow, checkCol);
+            ChessPiece checkPiece = board.getPiece(checkPos);
+            if (checkRow <= 0 | checkCol <= 0 | checkRow >= 9 | checkCol >= 9 | checkPiece.getTeamColor() == currentPiece.getTeamColor()){
+                break;
+        } else {
+                moves.add(new ChessMove(myPosition,checkPos,null));
+            }
+        }
+
+        for (int i = 1; i < 10; i++) {
+            int checkCol = currentCol + -i;
+            int checkRow = currentRow + i;
+            ChessPosition checkPos = new ChessPosition(checkRow, checkCol);
+            ChessPiece checkPiece = board.getPiece(checkPos);
+            if (checkRow <= 0 | checkCol <= 0 | checkRow >= 9 | checkCol >= 9 | checkPiece.getTeamColor() == currentPiece.getTeamColor()){
+                break;
+            } else {
+                moves.add(new ChessMove(myPosition,checkPos,null));
+            }
+        }
+
+        for (int i = 1; i < 10; i++) {
+            int checkCol = currentCol + i;
+            int checkRow = currentRow + -i;
+            ChessPosition checkPos = new ChessPosition(checkRow, checkCol);
+            ChessPiece checkPiece = board.getPiece(checkPos);
+            if (checkRow <= 0 | checkCol <= 0 | checkRow >= 9 | checkCol >= 9 | checkPiece.getTeamColor() == currentPiece.getTeamColor()){
+                break;
+            } else {
+                moves.add(new ChessMove(myPosition,checkPos,null));
+            }
+        }
+
+        for (int i = 1; i < 10; i++) {
+            int checkCol = currentCol + -i;
+            int checkRow = currentRow + -i;
+            ChessPosition checkPos = new ChessPosition(checkRow, checkCol);
+            ChessPiece checkPiece = board.getPiece(checkPos);
+            if (checkRow <= 0 | checkCol <= 0 | checkRow >= 9 | checkCol >= 9 | checkPiece.getTeamColor() == currentPiece.getTeamColor()){
+                break;
+            } else {
+                moves.add(new ChessMove(myPosition,checkPos,null));
+            }
+        }
+        return moves;
+    // Recursion base-case
+
+//    public ChessMove bishopMove(ChessMove move) {
+//        ChessPosition endPosition = move.getEndPosition();
+//        ChessPosition newEndPosition = new ChessPosition(endPosition.getColumn() + 1, endPosition.getRow() + 1);
+//        ChessMove newMove = new ChessMove(move.getStartPosition(),newEndPosition, null);
+//        return bishopMove;
+//    }
+//
+//    public Collection<ChessMove> recursiveMove(ChessPosition position, List<ChessMove> moveList) {
+//        ChessPiece piece = board.getPiece(myPosition);
+//        if (piece != null) {
+//            if (piece.ChessGame.TeamColor.getTeamColor() == WHITE ) {
+//                return;
+//            }
+//            else {
+//                moveCollection.add(move);
+//            }
+//        }
+//        return recursiveMove(function, move);
+//    }
+
+
 }
