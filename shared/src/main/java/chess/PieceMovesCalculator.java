@@ -15,7 +15,7 @@ public class PieceMovesCalculator {
         this.availableMoves = new ArrayList<>();
     }
 
-    Collection<ChessMove> MoveCalculation() {
+    Collection<ChessMove> moveCalculation() {
         ChessPiece piece = board.getPiece(myPosition);
         switch(piece.getPieceType()) {
             case ChessPiece.PieceType.BISHOP:
