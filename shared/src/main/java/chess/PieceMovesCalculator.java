@@ -83,35 +83,41 @@ class BishopMovesCalculator extends PieceMovesCalculator {
         this.myPosition = myPosition;
     }
 
+//    public Collection<ChessMove> getMoves() {
+//        int currentRow = myPosition.getRow();
+//        int currentCol = myPosition.getColumn();
+//        ChessPiece currentPiece = board.getPiece(myPosition);
+//        // Iterate from the piece going from the inside out in all directions available (4 for bishop), stopping when hitting a piece or an edge. If you find a piece that is the enemy's then include it as a possible move (for capture)
+//        // Append all these possible moves to the Collection of Chess Moves and return the Collection.
+//        int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+//        for (int dirVec = 0; dirVec < directions.length; dirVec++) {
+//            int dirRow = directions[dirVec][0];
+//            int dirCol = directions[dirVec][1];
+//            for (int i = 1; i < 10; i++) {
+//                int checkCol = currentCol + dirCol * i;
+//                int checkRow = currentRow + dirRow * i;
+//                ChessPosition checkPos = new ChessPosition(checkRow, checkCol);
+//                if (checkRow <= 0 || checkCol <= 0 || checkRow >= 9 || checkCol >= 9 ) {
+//                    break;
+//                }
+//                ChessPiece checkPiece = board.getPiece(checkPos);
+//                if (checkPiece == null) {
+//                    moves.add(new ChessMove(myPosition, checkPos, null));
+//                } else if (checkPiece.getTeamColor() != currentPiece.getTeamColor()) {
+//                    moves.add(new ChessMove(myPosition, checkPos, null));
+//                    break;
+//                } else {
+//                    break;
+//                }
+//            }
+//        }
+//        return moves;
+//    }
+//
     public Collection<ChessMove> getMoves() {
-        int currentRow = myPosition.getRow();
-        int currentCol = myPosition.getColumn();
-        ChessPiece currentPiece = board.getPiece(myPosition);
-        // Iterate from the piece going from the inside out in all directions available (4 for bishop), stopping when hitting a piece or an edge. If you find a piece that is the enemy's then include it as a possible move (for capture)
-        // Append all these possible moves to the Collection of Chess Moves and return the Collection.
-        int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-        for (int dirVec = 0; dirVec < directions.length; dirVec++) {
-            int dirRow = directions[dirVec][0];
-            int dirCol = directions[dirVec][1];
-            for (int i = 1; i < 10; i++) {
-                int checkCol = currentCol + dirCol * i;
-                int checkRow = currentRow + dirRow * i;
-                ChessPosition checkPos = new ChessPosition(checkRow, checkCol);
-                if (checkRow <= 0 || checkCol <= 0 || checkRow >= 9 || checkCol >= 9 ) {
-                    break;
-                }
-                ChessPiece checkPiece = board.getPiece(checkPos);
-                if (checkPiece == null) {
-                    moves.add(new ChessMove(myPosition, checkPos, null));
-                } else if (checkPiece.getTeamColor() != currentPiece.getTeamColor()) {
-                    moves.add(new ChessMove(myPosition, checkPos, null));
-                    break;
-                } else {
-                    break;
-                }
-            }
-        }
-        return moves;
+        int[][] direction = {{-1,-1},{1,1},{-1,1},{1,-1}};
+        int maxSteps = 8; // Bishop
+        return sliderMovement(direction,maxSteps);
     }
 }
 
@@ -128,35 +134,40 @@ class RookMovesCalculator extends PieceMovesCalculator {
         this.myPosition = myPosition;
     }
 
+//    public Collection<ChessMove> getMoves() {
+//        int currentRow = myPosition.getRow();
+//        int currentCol = myPosition.getColumn();
+//        ChessPiece currentPiece = board.getPiece(myPosition);
+//        // Iterate from the piece going from the inside out in all directions available (4 for bishop), stopping when hitting a piece or an edge. If you find a piece that is the enemy's then include it as a possible move (for capture)
+//        // Append all these possible moves to the Collection of Chess Moves and return the Collection.
+//        int[][] directions = {{0, 1}, {0, -1}, {-1, 0}, {1, 0}};
+//        for (int dirVec = 0; dirVec < directions.length; dirVec++) {
+//            int dirRow = directions[dirVec][0];
+//            int dirCol = directions[dirVec][1];
+//            for (int i = 1; i < 10; i++) {
+//                int checkCol = currentCol + dirCol * i;
+//                int checkRow = currentRow + dirRow * i;
+//                ChessPosition checkPos = new ChessPosition(checkRow, checkCol);
+//                if (checkRow <= 0 || checkCol <= 0 || checkRow >= 9 || checkCol >= 9 ) {
+//                    break;
+//                }
+//                ChessPiece checkPiece = board.getPiece(checkPos);
+//                if (checkPiece == null) {
+//                    moves.add(new ChessMove(myPosition, checkPos, null));
+//                } else if (checkPiece.getTeamColor() != currentPiece.getTeamColor()) {
+//                    moves.add(new ChessMove(myPosition, checkPos, null));
+//                    break;
+//                } else {
+//                    break;
+//                }
+//            }
+//        }
+//        return moves;
+//    }
     public Collection<ChessMove> getMoves() {
-        int currentRow = myPosition.getRow();
-        int currentCol = myPosition.getColumn();
-        ChessPiece currentPiece = board.getPiece(myPosition);
-        // Iterate from the piece going from the inside out in all directions available (4 for bishop), stopping when hitting a piece or an edge. If you find a piece that is the enemy's then include it as a possible move (for capture)
-        // Append all these possible moves to the Collection of Chess Moves and return the Collection.
-        int[][] directions = {{0, 1}, {0, -1}, {-1, 0}, {1, 0}};
-        for (int dirVec = 0; dirVec < directions.length; dirVec++) {
-            int dirRow = directions[dirVec][0];
-            int dirCol = directions[dirVec][1];
-            for (int i = 1; i < 10; i++) {
-                int checkCol = currentCol + dirCol * i;
-                int checkRow = currentRow + dirRow * i;
-                ChessPosition checkPos = new ChessPosition(checkRow, checkCol);
-                if (checkRow <= 0 || checkCol <= 0 || checkRow >= 9 || checkCol >= 9 ) {
-                    break;
-                }
-                ChessPiece checkPiece = board.getPiece(checkPos);
-                if (checkPiece == null) {
-                    moves.add(new ChessMove(myPosition, checkPos, null));
-                } else if (checkPiece.getTeamColor() != currentPiece.getTeamColor()) {
-                    moves.add(new ChessMove(myPosition, checkPos, null));
-                    break;
-                } else {
-                    break;
-                }
-            }
-        }
-        return moves;
+        int[][] direction = {{0,1},{0,-1},{1,0},{-1,0}};
+        int maxSteps = 8; // Rook
+        return sliderMovement(direction,maxSteps);
     }
 }
 
