@@ -72,15 +72,8 @@ public class PieceMovesCalculator {
 
 class BishopMovesCalculator extends PieceMovesCalculator {
 
-    private Collection<ChessMove> moves;
-    private ChessBoard board;
-    private ChessPosition myPosition;
-
     public BishopMovesCalculator(ChessBoard board, ChessPosition myPosition) {
         super(board, myPosition);
-        this.moves = new ArrayList<>();
-        this.board = board;
-        this.myPosition = myPosition;
     }
 
     public Collection<ChessMove> getMoves() {
@@ -92,15 +85,9 @@ class BishopMovesCalculator extends PieceMovesCalculator {
 
 class RookMovesCalculator extends PieceMovesCalculator {
 
-    private Collection<ChessMove> moves;
-    private ChessBoard board;
-    private ChessPosition myPosition;
-
     public RookMovesCalculator(ChessBoard board, ChessPosition myPosition) {
         super(board, myPosition);
-        this.moves = new ArrayList<>();
-        this.board = board;
-        this.myPosition = myPosition;
+
     }
 
     public Collection<ChessMove> getMoves() {
@@ -112,15 +99,8 @@ class RookMovesCalculator extends PieceMovesCalculator {
 
 class KingMovesCalculator extends PieceMovesCalculator {
 
-    private Collection<ChessMove> moves;
-    private ChessBoard board;
-    private ChessPosition myPosition;
-
     public KingMovesCalculator(ChessBoard board, ChessPosition myPosition) {
         super(board, myPosition);
-        this.moves = new ArrayList<>();
-        this.board = board;
-        this.myPosition = myPosition;
     }
 
     public Collection<ChessMove> getMoves() {
@@ -132,15 +112,8 @@ class KingMovesCalculator extends PieceMovesCalculator {
 
 class QueenMovesCalculator extends PieceMovesCalculator {
 
-    private Collection<ChessMove> moves;
-    private ChessBoard board;
-    private ChessPosition myPosition;
-
     public QueenMovesCalculator(ChessBoard board, ChessPosition myPosition) {
         super(board, myPosition);
-        this.moves = new ArrayList<>();
-        this.board = board;
-        this.myPosition = myPosition;
     }
 
     public Collection<ChessMove> getMoves() {
