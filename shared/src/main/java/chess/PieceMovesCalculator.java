@@ -8,11 +8,13 @@ public class PieceMovesCalculator {
     private ChessBoard board;
     private ChessPosition myPosition;
     private Collection<ChessMove> availableMoves;
+    private Collection<ChessMove> moves;
 
     public PieceMovesCalculator(ChessBoard board, ChessPosition myPosition) {
         this.board = board;
         this.myPosition = myPosition;
         this.availableMoves = new ArrayList<>();
+        this.moves = new ArrayList<>();
     }
 
     Collection<ChessMove> moveCalculation() {
@@ -38,6 +40,32 @@ public class PieceMovesCalculator {
                 break;
         }
         return availableMoves;
+    }
+
+    Collection<ChessMove> sliderMovement(int[][] direction, int maxSteps) {
+        ChessPiece piece = board.getPiece(myPosition);
+        int currentRow = myPosition.getRow();
+        int currentCol = myPosition.getColumn();
+        for (var dirVec : direction) {
+            for (int i = 1; i < maxSteps; i++) {
+                int newRow = currentRow + i * dirVec[0];
+                int newCol = currentCol + i * dirVec[1];
+                if (newRow <= 0 || newRow >= 9 || newCol <= 0 || newCol >= 9) {
+                    break;
+                }
+                ChessPosition newPosition = new ChessPosition(newRow,newCol);
+                ChessPiece newPiece = board.getPiece(newPosition);
+                if (newPiece == null) {
+                    moves.add(new ChessMove(myPosition, newPosition, null));
+                } else if (newPiece.getTeamColor() != piece.getTeamColor()) {
+                    moves.add(new ChessMove(myPosition, newPosition, null));
+                    break;
+                } else if (newPiece.getTeamColor() == piece.getTeamColor()){
+                    break;
+                }
+            }
+        }
+        return moves;
     }
 
 }
