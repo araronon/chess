@@ -49,7 +49,7 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece checkPiece = currentBoard.getPiece(startPosition);
-        ChessBoard checkBoard = new
+        ChessBoard checkBoard = currentBoard.clone();
         Collection<ChessMove> currentMovesCollection = checkPiece.pieceMoves(currentBoard, startPosition);
         for (ChessMove currentMove : currentMovesCollection) {
             ChessPosition currentEndPosition = currentMove.getEndPosition();
