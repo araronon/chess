@@ -26,6 +26,10 @@ public class ChessBoard implements Cloneable {
         squares[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
+    public void removePiece(ChessPosition position) {
+        squares[position.getRow()-1][position.getColumn()-1] = null;
+    }
+
     /**
      * Gets a chess piece on the chessboard
      *
@@ -80,7 +84,7 @@ public class ChessBoard implements Cloneable {
     }
 
     @Override
-    public ChessBoard clone() throws CloneNotSupportedException {
+    public ChessBoard clone() {
         ChessBoard squarescopy = (ChessBoard) super.clone();
         squarescopy.squares = new ChessPiece [8][8];
         for (int row = 0; row < 8; row++) {

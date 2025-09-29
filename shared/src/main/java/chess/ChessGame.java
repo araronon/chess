@@ -53,6 +53,16 @@ public class ChessGame {
         Collection<ChessMove> currentMovesCollection = checkPiece.pieceMoves(currentBoard, startPosition);
         for (ChessMove currentMove : currentMovesCollection) {
             ChessPosition currentEndPosition = currentMove.getEndPosition();
+            ChessPiece clonePiece = checkBoard.getPiece(startPosition);
+            checkBoard.removePiece(startPosition);
+            checkBoard.addPiece(currentEndPosition, clonePiece);
+            if (checkBoard.isInCheck(clonePiece.getTeamColor())) {
+                // remove move
+                currentMovesCollection.remove(currentMove);
+            }
+
+
+
     }
 
     /**
