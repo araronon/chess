@@ -49,6 +49,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece checkPiece = currentBoard.getPiece(startPosition);
+        if (checkPiece == null) {
+            return null;
+        }
         ChessBoard checkBoard = currentBoard.clone();
         Collection<ChessMove> currentMovesCollection = checkPiece.pieceMoves(currentBoard, startPosition);
         for (ChessMove currentMove : currentMovesCollection) {
@@ -56,13 +59,13 @@ public class ChessGame {
             ChessPiece clonePiece = checkBoard.getPiece(startPosition);
             checkBoard.removePiece(startPosition);
             checkBoard.addPiece(currentEndPosition, clonePiece);
-            if (checkBoard.isInCheck(clonePiece.getTeamColor())) {
-                // remove move
+            ChessGame cloneGame = new ChessGame();
+            cloneGame.setBoard(checkBoard);
+            if (cloneGame.isInCheck(clonePiece.getTeamColor())) {
                 currentMovesCollection.remove(currentMove);
             }
-
-
-
+        }
+        return currentMovesCollection;
     }
 
     /**
@@ -71,8 +74,7 @@ public class ChessGame {
      * @param move chess move to perform
      * @throws InvalidMoveException if move is invalid
      */
-    public void makeMove(ChessMove move) throws InvalidMoveException {
-
+    public void makeMove(ChessMove move) {
     }
 
     /**
