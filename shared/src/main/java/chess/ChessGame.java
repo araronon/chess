@@ -148,6 +148,11 @@ public class ChessGame {
                 if (checkPiece == null) {
                     continue;
                 }
+                if (!validMoves(checkPos).isEmpty()) {
+                    break;
+                }
+            }
+        }
     }
 
     /**
