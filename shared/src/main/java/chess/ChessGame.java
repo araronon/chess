@@ -82,15 +82,34 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
+        ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
+        ChessPiece checkPiece = currentBoard.getPiece(startPosition);
+        if (checkPiece == null) {
+            throw new InvalidMoveException();
+        }
+        TeamColor teamColor = checkPiece.getTeamColor();
+        if (getTeamTurn() != teamColor) {
+            throw new InvalidMoveException();
+        }
         for (ChessMove movement : validMoves(startPosition)) {
             if (move.equals(movement)) {
-                ChessPiece currentPiece = currentBoard.getPiece(startPosition);
-                currentBoard.removePiece(startPosition);
-                currentBoard.addPiece(endPosition, currentPiece);
+                if (promotionPiece != null) {
+                    currentBoard.removePiece(startPosition);
+                    currentBoard.addPiece(endPosition, new ChessPiece(teamColor,promotionPiece));
+                } else {
+                    ChessPiece currentPiece = currentBoard.getPiece(startPosition);
+                    currentBoard.removePiece(startPosition);
+                    currentBoard.addPiece(endPosition, currentPiece);
+                }
+                if (teamColor == TeamColor.WHITE) {
+                    setTeamTurn(TeamColor.BLACK);
+                } else {
+                    setTeamTurn(TeamColor.WHITE);
+                }
                 return;
             }
         }
-        throw new InvalidMoveException("Not a valid move.");
+        throw new InvalidMoveException();
     }
 
     /**
