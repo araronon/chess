@@ -107,4 +107,5 @@ public class ChessBoard implements Cloneable {
     public int hashCode() {
         return Arrays.deepHashCode(squares);
     }
+
 }

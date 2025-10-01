@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -52,6 +53,7 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece checkPiece = currentBoard.getPiece(startPosition);
+        Collection<ChessMove> validMovements = new ArrayList<>();
         if (checkPiece == null) {
             return null;
         }
@@ -64,11 +66,11 @@ public class ChessGame {
             checkBoard.addPiece(currentEndPosition, clonePiece);
             ChessGame cloneGame = new ChessGame();
             cloneGame.setBoard(checkBoard);
-            if (cloneGame.isInCheck(clonePiece.getTeamColor())) {
-                currentMovesCollection.remove(currentMove);
+            if (!cloneGame.isInCheck(clonePiece.getTeamColor())) {
+                validMovements.add(currentMove);
             }
         }
-        return currentMovesCollection;
+        return validMovements;
     }
 
     /**
@@ -110,7 +112,7 @@ public class ChessGame {
                     Collection<ChessMove> currentMovesCollection = checkPiece.pieceMoves(currentBoard, checkPos);
                     for (ChessMove currentMove : currentMovesCollection) {
                         ChessPosition currentEndPosition = currentMove.getEndPosition();
-                        if (currentEndPosition.equals(checkPos)) {
+                        if (currentEndPosition.equals(kingPosition)) {
                             return true;
                         }
                     }
@@ -125,6 +127,9 @@ public class ChessGame {
             for (int col = 1; col < 9; col++) {
                 ChessPosition checkPos = new ChessPosition(row, col);
                 ChessPiece checkPiece = currentBoard.getPiece(checkPos);
+                if (checkPiece == null) {
+                    continue;
+                }
                 if ((checkPiece.getPieceType() == ChessPiece.PieceType.KING) && (checkPiece.getTeamColor() == teamColor)) {
                     return checkPos;
                 }
@@ -150,6 +155,10 @@ public class ChessGame {
                 if (checkPiece == null) {
                     continue;
                 }
+                if (checkPiece.getTeamColor() != teamColor) {
+                    continue;
+                }
+                Collection<ChessMove> testMoves = validMoves(checkPos);
                 if (!validMoves(checkPos).isEmpty()) {
                     return false;
                 }
