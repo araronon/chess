@@ -91,7 +91,7 @@ public class ChessBoard implements Cloneable {
             for (int row = 0; row < 8; row++) {
                 for (int col = 0; col < 8; col++) {
                     if (this.squares[row][col] != null) {
-                        squarescopy.squares[row][col] = this.squares[row][col].clone();
+                        squarescopy.squares[row][col] = this.squares[row][col];
 
                     }
                 }

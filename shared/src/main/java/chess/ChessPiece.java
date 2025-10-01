@@ -71,4 +71,9 @@ public class ChessPiece {
         Collection<ChessMove> movesCalculated = new PieceMovesCalculator(board, myPosition).moveCalculation();
         return movesCalculated;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s:%s",type,pieceColor);
+    }
 }
