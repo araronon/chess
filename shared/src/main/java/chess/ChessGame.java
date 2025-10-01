@@ -185,6 +185,9 @@ public class ChessGame {
                 if (checkPiece == null) {
                     continue;
                 }
+                if (checkPiece.getTeamColor() != teamColor) {
+                    continue;
+                }
                 if (!validMoves(checkPos).isEmpty()) {
                     return false;
                 }
