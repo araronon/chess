@@ -1,19 +1,23 @@
 package service;
 import dataaccess.*;
-import model.UserData;
+import model.*;
 
 public class UserService {
-    private UserAccess userAccess = new UserAccess();
-        //public RegisterResult register(RegisterRequest registerRequest) {}
-        public LoginResult login(LoginRequest loginRequest) throws DataAccessException {
-            try {
-                UserData userInfo = userAccess.getUser(loginRequest.username(), loginRequest.password());
-                AuthData authInfo = createAuth(loginRequest.username())
-            }
-            catch (DataAccessException ex) {
-
-
-            }
+    private MemoryUserAccess userAccess = new MemoryUserAccess();
+    private MemoryAuthAccess authAccess = new MemoryAuthAccess();
+    //public RegisterResult register(RegisterRequest registerRequest) {}
+    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException {
+        UserData userInfo = userAccess.getUser(loginRequest.username());
+        if (userInfo == null) {
+            throw new BadRequestException();
         }
-        //public void logout(LogoutRequest logoutRequest) {}
+        if (loginRequest.password() == userInfo.password() && (loginRequest.username() == userInfo.username())) {
+            AuthData authInfo = authAccess.createAuth(loginRequest.username());
+            LoginResult loginResult = new LoginResult(authInfo.authToken(),authInfo.username());
+            return loginResult;
+        } else {
+            throw new UnauthorizedException();
+        }
     }
+    //public void logout(LogoutRequest logoutRequest) {}
+}
