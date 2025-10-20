@@ -4,8 +4,7 @@ import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import com.google.gson.Gson;
-import service.LoginRequest;
-import service.UserService;
+import service.*;
 
 public class Server {
 
@@ -19,6 +18,9 @@ public class Server {
 
         javalin.post("session", this::login);
         javalin.delete("db", this::clear);
+        javalin.post("user",this::register);
+        javalin.delete("session", this::logout);
+        javalin.post("game",this::createGame);
     }
 
     public int run(int desiredPort) {
@@ -28,6 +30,45 @@ public class Server {
 
     public void stop() {
         javalin.stop();
+    }
+
+    public void createGame(Context context) {
+        try {
+            var serializer = new Gson();
+            String reqJson = context.body();
+            var loginReq = serializer.fromJson(reqJson, LoginRequest.class);
+            var authData = userService.login(loginReq);
+            context.status(200).result(serializer.toJson(authData));
+        }
+        catch (BadRequestException ex) {
+            var msg = String.format("{ \"message\": \"Error: bad request\" }");
+            context.status(400).result(msg);
+        }
+        catch (UnauthorizedException ex) {
+            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            context.status(401).result(msg);
+        }
+        catch (Exception ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            context.status(500).result(msg);
+        }
+    }
+
+    public void logout(Context context) {
+        try {
+            var serializer = new Gson();
+            String authToken = context.header("authorization");
+            userService.logout(authToken);
+            context.status(200).result("{}");
+        }
+        catch (UnauthorizedException ex) {
+            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            context.status(401).result(msg);
+        }
+        catch (Exception ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            context.status(500).result(msg);
+        }
     }
 
     public void clear(Context context) {
@@ -41,7 +82,29 @@ public class Server {
         }
     }
 
-    public void login(Context context) throws DataAccessException {
+    public void register(Context context) {
+        try {
+            var serializer = new Gson();
+            String reqJson = context.body();
+            var user = serializer.fromJson(reqJson, RegisterRequest.class);
+            var authData = userService.register(user);
+            context.status(200).result(serializer.toJson(authData));
+        }
+        catch (BadRequestException ex) {
+            var msg = String.format("{ \"message\": \"Error: bad request\" }");
+            context.status(400).result(msg);
+        }
+        catch (AlreadyTakenException ex) {
+            var msg = String.format("{ \"message\": \"Error: already taken\" }");
+            context.status(403).result(msg);
+        }
+        catch (Exception ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            context.status(500).result(msg);
+        }
+    }
+
+    public void login(Context context) {
         try {
             var serializer = new Gson();
             String reqJson = context.body();
