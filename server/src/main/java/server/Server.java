@@ -10,6 +10,7 @@ public class Server {
 
     private final Javalin javalin;
     private final UserService userService = new UserService();
+    private final GameService gameService = new GameService();
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -36,9 +37,10 @@ public class Server {
         try {
             var serializer = new Gson();
             String reqJson = context.body();
-            var loginReq = serializer.fromJson(reqJson, LoginRequest.class);
-            var authData = userService.login(loginReq);
-            context.status(200).result(serializer.toJson(authData));
+            String authToken = context.header("authorization");
+            var gameReq = serializer.fromJson(reqJson, GameRequest.class);
+            var idData = gameService.createGame(gameReq, authToken);
+            context.status(200).result(serializer.toJson(idData));
         }
         catch (BadRequestException ex) {
             var msg = String.format("{ \"message\": \"Error: bad request\" }");
