@@ -9,6 +9,10 @@ public class MemoryAuthAccess implements AuthAccess {
 
     private HashMap<String, AuthData> authMap;
 
+    public void clear() {
+        authMap.clear();
+    }
+
     public AuthData createAuth(String username) {
         String newAuthToken = generateToken();
         authMap.put(newAuthToken, new AuthData(newAuthToken, username));

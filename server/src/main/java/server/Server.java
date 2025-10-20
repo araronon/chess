@@ -18,6 +18,7 @@ public class Server {
         // Register your endpoints and exception handlers here.
 
         javalin.post("session", this::login);
+        javalin.delete("db", this::clear);
     }
 
     public int run(int desiredPort) {
@@ -27,6 +28,17 @@ public class Server {
 
     public void stop() {
         javalin.stop();
+    }
+
+    public void clear(Context context) {
+        try {
+            userService.clear();
+            context.status(200).result("{}");
+        }
+        catch (Exception ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            context.status(500).result(msg);
+        }
     }
 
     public void login(Context context) throws DataAccessException {

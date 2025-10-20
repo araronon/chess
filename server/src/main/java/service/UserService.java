@@ -5,6 +5,7 @@ import model.*;
 public class UserService {
     private MemoryUserAccess userAccess = new MemoryUserAccess();
     private MemoryAuthAccess authAccess = new MemoryAuthAccess();
+    private MemoryGameAccess gameAccess = new MemoryGameAccess();
     //public RegisterResult register(RegisterRequest registerRequest) {}
     public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException {
         UserData userInfo = userAccess.getUser(loginRequest.username());
@@ -18,6 +19,11 @@ public class UserService {
         } else {
             throw new UnauthorizedException();
         }
+    }
+    public void clear() {
+        userAccess.clear();
+        gameAccess.clear();
+        authAccess.clear();
     }
     //public void logout(LogoutRequest logoutRequest) {}
 }

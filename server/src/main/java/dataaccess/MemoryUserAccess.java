@@ -7,7 +7,7 @@ public class MemoryUserAccess implements UserAccess {
 
     @Override
     public void clear() {
-
+        usermap.clear();
     }
 
     @Override
