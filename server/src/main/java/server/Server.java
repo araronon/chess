@@ -9,8 +9,11 @@ import service.*;
 public class Server {
 
     private final Javalin javalin;
-    private final UserService userService = new UserService();
-    private final GameService gameService = new GameService();
+    private final MemoryUserAccess userAccess = new MemoryUserAccess();
+    private final MemoryAuthAccess authAccess = new MemoryAuthAccess();
+    private final MemoryGameAccess gameAccess = new MemoryGameAccess();
+    private final UserService userService = new UserService(userAccess, authAccess, gameAccess);
+    private final GameService gameService = new GameService(userAccess, authAccess, gameAccess);
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));

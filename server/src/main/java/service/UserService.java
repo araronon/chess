@@ -3,9 +3,17 @@ import dataaccess.*;
 import model.*;
 
 public class UserService {
-    private MemoryUserAccess userAccess = new MemoryUserAccess();
-    private MemoryAuthAccess authAccess = new MemoryAuthAccess();
-    private MemoryGameAccess gameAccess = new MemoryGameAccess();
+
+
+    private final MemoryUserAccess userAccess;
+    private final MemoryAuthAccess authAccess;
+    private final MemoryGameAccess gameAccess;
+
+    public UserService(MemoryUserAccess userAccess, MemoryAuthAccess authAccess, MemoryGameAccess gameAccess) {
+        this.userAccess = userAccess;
+        this.authAccess = authAccess;
+        this.gameAccess = gameAccess;
+    }
 
     public RegisterResult register(RegisterRequest registerRequest) throws BadRequestException, AlreadyTakenException {
         UserData userCheck = userAccess.getUser(registerRequest.username());
