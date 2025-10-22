@@ -128,13 +128,14 @@ public class ChessGame {
                 if (checkPiece == null) {
                     continue;
                 }
-                if (checkPiece.getTeamColor() != teamColor) {
-                    Collection<ChessMove> currentMovesCollection = checkPiece.pieceMoves(currentBoard, checkPos);
-                    for (ChessMove currentMove : currentMovesCollection) {
-                        ChessPosition currentEndPosition = currentMove.getEndPosition();
-                        if (currentEndPosition.equals(kingPosition)) {
-                            return true;
-                        }
+                if (checkPiece.getTeamColor() == teamColor) {
+                    return false;
+                }
+                Collection<ChessMove> currentMovesCollection = checkPiece.pieceMoves(currentBoard, checkPos);
+                for (ChessMove currentMove : currentMovesCollection) {
+                    ChessPosition currentEndPosition = currentMove.getEndPosition();
+                    if (currentEndPosition.equals(kingPosition)) {
+                        return true;
                     }
                 }
             }
