@@ -129,7 +129,7 @@ public class ChessGame {
                     continue;
                 }
                 if (checkPiece.getTeamColor() == teamColor) {
-                    return false;
+                    continue;
                 }
                 Collection<ChessMove> currentMovesCollection = checkPiece.pieceMoves(currentBoard, checkPos);
                 for (ChessMove currentMove : currentMovesCollection) {
