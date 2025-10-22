@@ -3,6 +3,8 @@ package dataaccess;
 import chess.ChessGame;
 import model.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 public class MemoryGameAccess implements GameAccess {
@@ -42,6 +44,12 @@ public class MemoryGameAccess implements GameAccess {
             GameData newGameData = new GameData(gameData.gameID(),username,gameData.blackUsername(),gameData.gameName(),gameData.game());
             gameMap.put(gameID,newGameData);
         }
+    }
+
+    @Override
+    public Collection<GameData> listGames() {
+        Collection<GameData> gameList = new ArrayList<>(gameMap.values());
+        return gameList;
     }
 }
 

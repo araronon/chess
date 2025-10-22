@@ -25,7 +25,7 @@ public class Server {
         javalin.post("user",this::register);
         javalin.delete("session", this::logout);
         javalin.post("game",this::createGame);
-//        javalin.get("game",this::listGames);
+        javalin.get("game",this::listGames);
         javalin.put("game",this::joinGame);
     }
 
@@ -66,14 +66,22 @@ public class Server {
 
     }
 
-//    public void listGames(Context context) {
-//        try {
-//            var serializer = new Gson();
-//            String authToken = context.header("authorization");
-//            var gameData = gameService.listGames(authToken);
-//            context.status(200).result(serializer.toJson(gameData));
-//        }
-//    }
+    public void listGames(Context context) {
+        try {
+            var serializer = new Gson();
+            String authToken = context.header("authorization");
+            var gameData = gameService.listGames(authToken);
+            context.status(200).result(serializer.toJson(gameData));
+        }
+        catch (UnauthorizedException ex) {
+            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            context.status(401).result(msg);
+        }
+        catch (Exception ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            context.status(500).result(msg);
+        }
+    }
 
     public void createGame(Context context) {
         try {

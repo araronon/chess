@@ -2,6 +2,11 @@ package service;
 import dataaccess.*;
 import model.*;
 
+import java.awt.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class GameService {
     private final MemoryUserAccess userAccess;
@@ -12,6 +17,16 @@ public class GameService {
         this.userAccess = userAccess;
         this.authAccess = authAccess;
         this.gameAccess = gameAccess;
+    }
+
+    public Collection<GameData> listGames(String authToken) throws UnauthorizedException {
+        if (authAccess.getAuth(authToken) == null) {
+            throw new UnauthorizedException();
+        }
+        Collection<GameData> gameList = gameAccess.listGames();
+        Map<String, Collection<GameData>> formattedList = new HashMap<>();
+        formattedList.put("games",gameList);
+        return gameList;
     }
 
     public GameResult createGame(GameRequest gameRequest, String authToken) throws UnauthorizedException, BadRequestException {
