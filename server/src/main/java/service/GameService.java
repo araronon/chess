@@ -19,14 +19,14 @@ public class GameService {
         this.gameAccess = gameAccess;
     }
 
-    public Collection<GameData> listGames(String authToken) throws UnauthorizedException {
+    public Map<String,Collection<GameData>> listGames(String authToken) throws UnauthorizedException {
         if (authAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException();
         }
         Collection<GameData> gameList = gameAccess.listGames();
         Map<String, Collection<GameData>> formattedList = new HashMap<>();
         formattedList.put("games",gameList);
-        return gameList;
+        return formattedList;
     }
 
     public GameResult createGame(GameRequest gameRequest, String authToken) throws UnauthorizedException, BadRequestException {
@@ -46,6 +46,9 @@ public class GameService {
         if (authData == null) {
             throw new UnauthorizedException();
         }
+        if (gameJoinRequest.playerColor() == null) {
+            throw new BadRequestException();
+        }
         if (!gameJoinRequest.playerColor().equals("BLACK") && !gameJoinRequest.playerColor().equals("WHITE")) {
             throw new BadRequestException();
         }
@@ -53,6 +56,7 @@ public class GameService {
         if (gameData == null) {
             throw new BadRequestException();
         }
+        // Steal Game
         if ((gameJoinRequest.playerColor().equals("BLACK") && gameData.blackUsername() != null) || (gameJoinRequest.playerColor().equals("WHITE") && gameData.whiteUsername() != null)) {
             throw new AlreadyTakenException();
         }
