@@ -157,11 +157,11 @@ public class ServiceTests {
         gameService.joinGame(gameJoinRequestTest, loginResultTest.authToken());
         Map<String,Collection<GameData>> gameMap = gameService.listGames(loginResultTest.authToken());
         List<GameData> gameList = new ArrayList<>(gameMap.get("games"));
-        Assertions.assertEquals(gameList.get(0).blackUsername(), "testUser");
+        Assertions.assertEquals(gameList.get(0).blackUsername(), "TestUser");
     }
 
     @Test
-    @Order(10)
+    @Order(12)
     @DisplayName("Negative - Join Game")
     public void failedJoinGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
         RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
@@ -172,5 +172,19 @@ public class ServiceTests {
         GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
         GameJoinRequest gameJoinRequestTest = new GameJoinRequest("GREEN", 1001);
         Assertions.assertThrows(BadRequestException.class,()-> gameService.joinGame(gameJoinRequestTest, loginResultTest.authToken()));
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("Positive - Clear")
+    public void successfulClear() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultTest = userService.register(registerRequestTest);
+        LoginRequest loginRequestTest = new LoginRequest(testUser,testPassword);
+        LoginResult loginResultTest = userService.login(loginRequestTest);
+        GameRequest gameRequestTest = new GameRequest("My Game");
+        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
+        gameService.clear();
+        Assertions.assertThrows(UnauthorizedException.class, ()-> userService.login(loginRequestTest));
     }
 }
