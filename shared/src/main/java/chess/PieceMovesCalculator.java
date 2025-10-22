@@ -131,7 +131,6 @@ class PawnMovesCalculator extends PieceMovesCalculator {
     private ChessPosition myPosition;
     private Collection<ChessMove> moves;
 
-
     public PawnMovesCalculator(ChessBoard board, ChessPosition myPosition) {
         super(board, myPosition);
         this.board = board;
