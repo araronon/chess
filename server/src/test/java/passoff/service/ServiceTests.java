@@ -2,6 +2,7 @@ package passoff.service;
 
 import chess.ChessGame;
 import dataaccess.*;
+import model.*;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
 import service.*;
@@ -124,18 +125,52 @@ public class ServiceTests {
         LoginResult loginResultTest = userService.login(loginRequestTest);
         GameRequest gameRequestTest = new GameRequest("My Game");
         GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
-        Map<String, gameService.listGames(loginResultTest.authToken());
+        Map<String,Collection<GameData>> gameMap = gameService.listGames(loginResultTest.authToken());
+        List<GameData> gameList = new ArrayList<>(gameMap.get("games"));
+        Assertions.assertEquals(gameList.get(0).gameName(), "My Game");
     }
 
     @Test
     @Order(10)
-    @DisplayName("Negative - Create Game")
-    public void failedCreateGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    @DisplayName("Negative - List Game")
+    public void failedListGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
         RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(testUser,testPassword);
         LoginResult loginResultTest = userService.login(loginRequestTest);
-        GameRequest gameRequestTest = new GameRequest(null);
-        Assertions.assertThrows(BadRequestException.class, ()->gameService.createGame(gameRequestTest, loginResultTest.authToken()));
+        GameRequest gameRequestTest = new GameRequest("My Game");
+        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
+        Assertions.assertThrows(UnauthorizedException.class,()-> gameService.listGames("Not a valid authToken"));
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("Positive - Join Game")
+    public void successfulJoinGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultTest = userService.register(registerRequestTest);
+        LoginRequest loginRequestTest = new LoginRequest(testUser,testPassword);
+        LoginResult loginResultTest = userService.login(loginRequestTest);
+        GameRequest gameRequestTest = new GameRequest("My Game");
+        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
+        GameJoinRequest gameJoinRequestTest = new GameJoinRequest("BLACK", 1001);
+        gameService.joinGame(gameJoinRequestTest, loginResultTest.authToken());
+        Map<String,Collection<GameData>> gameMap = gameService.listGames(loginResultTest.authToken());
+        List<GameData> gameList = new ArrayList<>(gameMap.get("games"));
+        Assertions.assertEquals(gameList.get(0).blackUsername(), "testUser");
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Negative - Join Game")
+    public void failedJoinGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultTest = userService.register(registerRequestTest);
+        LoginRequest loginRequestTest = new LoginRequest(testUser,testPassword);
+        LoginResult loginResultTest = userService.login(loginRequestTest);
+        GameRequest gameRequestTest = new GameRequest("My Game");
+        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
+        GameJoinRequest gameJoinRequestTest = new GameJoinRequest("GREEN", 1001);
+        Assertions.assertThrows(BadRequestException.class,()-> gameService.joinGame(gameJoinRequestTest, loginResultTest.authToken()));
     }
 }
