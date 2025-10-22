@@ -26,6 +26,20 @@ public class GameService {
         return new GameResult(gameID);
     }
 
+    public void joinGame(GameJoinRequest gameJoinRequest, String authToken) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+        if (authAccess.getAuth(authToken) == null) {
+            throw new UnauthorizedException();
+        }
+        if (!gameJoinRequest.playerColor().equals("BLACK") && !gameJoinRequest.playerColor().equals("WHITE")) {
+            throw new BadRequestException();
+        }
+        if (gameAccess.getGame(gameJoinRequest.gameID()) == null) {
+            throw new BadRequestException();
+        }
+        GameData gameData = gameAccess.getGame(gameJoinRequest.gameID());
+        if (gameData.playerColor())
+    }
+
     public void clear() {
         userAccess.clear();
         gameAccess.clear();

@@ -25,6 +25,8 @@ public class Server {
         javalin.post("user",this::register);
         javalin.delete("session", this::logout);
         javalin.post("game",this::createGame);
+//        javalin.get("game",this::listGames);
+        javalin.put("game",this::joinGame);
     }
 
     public int run(int desiredPort) {
@@ -35,6 +37,43 @@ public class Server {
     public void stop() {
         javalin.stop();
     }
+
+    public void joinGame(Context context) {
+        try {
+            var serializer = new Gson();
+            String reqJson = context.body();
+            String authToken = context.header("authorization");
+            var gameJoinReq = serializer.fromJson(reqJson, GameJoinRequest.class);
+            gameService.joinGame(gameJoinReq, authToken);
+            context.status(200).result("{}");
+        }
+        catch (BadRequestException ex) {
+            var msg = String.format("{ \"message\": \"Error: bad request\" }");
+            context.status(400).result(msg);
+        }
+        catch (UnauthorizedException ex) {
+            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            context.status(401).result(msg);
+        }
+        catch (AlreadyTakenException ex) {
+            var msg = String.format("{ \"message\": \"Error: already taken\" }");
+            context.status(403).result(msg);
+        }
+        catch (Exception ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            context.status(500).result(msg);
+        }
+
+    }
+
+//    public void listGames(Context context) {
+//        try {
+//            var serializer = new Gson();
+//            String authToken = context.header("authorization");
+//            var gameData = gameService.listGames(authToken);
+//            context.status(200).result(serializer.toJson(gameData));
+//        }
+//    }
 
     public void createGame(Context context) {
         try {

@@ -25,5 +25,11 @@ public class MemoryGameAccess implements GameAccess {
         gameMap.put(newGameId, new GameData(newGameId, null, null, gameName, new ChessGame()));
         return newGameId;
         }
+
+        @Override
+    public GameData getGame(int gameID) {
+        return gameMap.get(gameID);
+        }
+
     }
 
