@@ -57,7 +57,8 @@ public class GameService {
             throw new BadRequestException();
         }
         // Steal Game
-        if ((gameJoinRequest.playerColor().equals("BLACK") && gameData.blackUsername() != null) || (gameJoinRequest.playerColor().equals("WHITE") && gameData.whiteUsername() != null)) {
+        if ((gameJoinRequest.playerColor().equals("BLACK") && gameData.blackUsername() != null)
+                || (gameJoinRequest.playerColor().equals("WHITE") && gameData.whiteUsername() != null)) {
             throw new AlreadyTakenException();
         }
         gameAccess.updateGame(gameJoinRequest.playerColor(), authData.username(), gameJoinRequest.gameID());

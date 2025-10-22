@@ -132,7 +132,9 @@ public class ChessGame {
                     Collection<ChessMove> currentMovesCollection = checkPiece.pieceMoves(currentBoard, checkPos);
                     for (ChessMove currentMove : currentMovesCollection) {
                         ChessPosition currentEndPosition = currentMove.getEndPosition();
-                        if (currentEndPosition.equals(kingPosition)) {return true;}
+                        if (currentEndPosition.equals(kingPosition)) {
+                            return true;
+                        }
                     }
                 }
             }
