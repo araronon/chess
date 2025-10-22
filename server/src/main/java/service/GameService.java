@@ -27,17 +27,21 @@ public class GameService {
     }
 
     public void joinGame(GameJoinRequest gameJoinRequest, String authToken) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
-        if (authAccess.getAuth(authToken) == null) {
+        var authData = authAccess.getAuth(authToken);
+        if (authData == null) {
             throw new UnauthorizedException();
         }
         if (!gameJoinRequest.playerColor().equals("BLACK") && !gameJoinRequest.playerColor().equals("WHITE")) {
             throw new BadRequestException();
         }
-        if (gameAccess.getGame(gameJoinRequest.gameID()) == null) {
+        var gameData = gameAccess.getGame(gameJoinRequest.gameID());
+        if (gameData == null) {
             throw new BadRequestException();
         }
-        GameData gameData = gameAccess.getGame(gameJoinRequest.gameID());
-        if (gameData.playerColor())
+        if ((gameJoinRequest.playerColor().equals("BLACK") && gameData.blackUsername() != null) || (gameJoinRequest.playerColor().equals("WHITE") && gameData.whiteUsername() != null)) {
+            throw new AlreadyTakenException();
+        }
+        gameAccess.updateGame(gameJoinRequest.playerColor(), authData.username(), gameJoinRequest.gameID());
     }
 
     public void clear() {

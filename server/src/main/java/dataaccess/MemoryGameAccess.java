@@ -31,5 +31,17 @@ public class MemoryGameAccess implements GameAccess {
         return gameMap.get(gameID);
         }
 
+    @Override
+    public void updateGame(String playerColor, String username, int gameID) {
+        GameData gameData = getGame(gameID);
+        if (playerColor == "BLACK") {
+            GameData newGameData = new GameData(gameData.gameID(),gameData.whiteUsername(),username,gameData.gameName(),gameData.game());
+            gameMap.put(gameID,newGameData);
+        }
+        else {
+            GameData newGameData = new GameData(gameData.gameID(),username,gameData.blackUsername(),gameData.gameName(),gameData.game());
+            gameMap.put(gameID,newGameData);
+        }
     }
+}
 
