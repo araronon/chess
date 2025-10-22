@@ -57,5 +57,4 @@ public class UserService {
         gameAccess.clear();
         authAccess.clear();
     }
-    //public void logout(LogoutRequest logoutRequest) {}
 }

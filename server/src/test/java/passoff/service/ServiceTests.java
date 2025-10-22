@@ -1,0 +1,141 @@
+package passoff.service;
+
+import chess.ChessGame;
+import dataaccess.*;
+import org.junit.jupiter.api.*;
+import passoff.model.*;
+import service.*;
+import java.util.*;
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class ServiceTests {
+
+    private static final String testUser = "TestUser";
+    private static final String testPassword = "TestPassword";
+    private static final String testEmail = "TestEmail";
+    private static final String falsePassword = "falsePassword";
+    private MemoryUserAccess userAccess = new MemoryUserAccess();
+    private MemoryGameAccess gameAccess = new MemoryGameAccess();
+    private MemoryAuthAccess authAccess = new MemoryAuthAccess();
+    private UserService userService = new UserService(userAccess, authAccess, gameAccess);
+    private GameService gameService = new GameService(userAccess, authAccess, gameAccess);
+
+    @BeforeEach
+    public void setup() {
+        userService.clear();
+        gameService.clear();
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Positive - Successful Registration")
+    public void successfulRegistration() throws BadRequestException, AlreadyTakenException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultActual = userService.register(registerRequestTest);
+        Assertions.assertEquals(registerResultActual.username(), registerRequestTest.username(), "Username registered");
+        Assertions.assertNotNull(registerResultActual.authToken(),"AuthToken registered");
+    }
+
+    @Test
+    @Order(2)
+    @DisplayName("Negative - Registration")
+    public void failedRegistration() throws BadRequestException, AlreadyTakenException {
+        RegisterRequest registerRequestTest = new RegisterRequest(null, null, null);
+        Assertions.assertThrows(BadRequestException.class, () -> userService.register(registerRequestTest),"BadRequest");
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("Positive - Login")
+    public void successfulLogin() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultTest = userService.register(registerRequestTest);
+        LoginRequest loginRequestTest = new LoginRequest(testUser,testPassword);
+        LoginResult loginResultActual = userService.login(loginRequestTest);
+        Assertions.assertEquals(loginResultActual.username(), loginRequestTest.username(), "Username registered");
+        Assertions.assertNotNull(loginResultActual.authToken(),"AuthToken registered");
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("Negative - Login")
+    public void failedLogin() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultTest = userService.register(registerRequestTest);
+        LoginRequest loginRequestTest = new LoginRequest(testUser,falsePassword);
+        Assertions.assertThrows(UnauthorizedException.class, ()-> userService.login(loginRequestTest));
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("Positive - Logout")
+    public void successfulLogout() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultTest = userService.register(registerRequestTest);
+        LoginRequest loginRequestTest = new LoginRequest(testUser,testPassword);
+        LoginResult loginResultActual = userService.login(loginRequestTest);
+        userService.logout(loginResultActual.authToken());
+        Assertions.assertNotEquals(userService.login(loginRequestTest).authToken(), loginResultActual.authToken());
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Negative - Logout")
+    public void failedLogout() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultTest = userService.register(registerRequestTest);
+        LoginRequest loginRequestTest = new LoginRequest(testUser,testPassword);
+        LoginResult loginResultActual = userService.login(loginRequestTest);
+        Assertions.assertThrows(UnauthorizedException.class, ()->userService.logout("Fake Auth Token"));
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("Positive - Create Game")
+    public void successfulCreateGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultTest = userService.register(registerRequestTest);
+        LoginRequest loginRequestTest = new LoginRequest(testUser,testPassword);
+        LoginResult loginResultTest = userService.login(loginRequestTest);
+        GameRequest gameRequestTest = new GameRequest("My Game");
+        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
+        Assertions.assertEquals(1001, gameResultActual.gameID());
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("Negative - Create Game")
+    public void failedCreateGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultTest = userService.register(registerRequestTest);
+        LoginRequest loginRequestTest = new LoginRequest(testUser,testPassword);
+        LoginResult loginResultTest = userService.login(loginRequestTest);
+        GameRequest gameRequestTest = new GameRequest(null);
+        Assertions.assertThrows(BadRequestException.class, ()->gameService.createGame(gameRequestTest, loginResultTest.authToken()));
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Positive - List Game")
+    public void successfulListGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultTest = userService.register(registerRequestTest);
+        LoginRequest loginRequestTest = new LoginRequest(testUser,testPassword);
+        LoginResult loginResultTest = userService.login(loginRequestTest);
+        GameRequest gameRequestTest = new GameRequest("My Game");
+        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
+        Map<String, gameService.listGames(loginResultTest.authToken());
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Negative - Create Game")
+    public void failedCreateGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        RegisterRequest registerRequestTest = new RegisterRequest(testUser, testPassword, testEmail);
+        RegisterResult registerResultTest = userService.register(registerRequestTest);
+        LoginRequest loginRequestTest = new LoginRequest(testUser,testPassword);
+        LoginResult loginResultTest = userService.login(loginRequestTest);
+        GameRequest gameRequestTest = new GameRequest(null);
+        Assertions.assertThrows(BadRequestException.class, ()->gameService.createGame(gameRequestTest, loginResultTest.authToken()));
+    }
+}
