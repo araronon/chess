@@ -14,7 +14,8 @@ import static java.sql.Types.NULL;
 
 public class SQLAuthAccess implements AuthAccess {
     public SQLAuthAccess() throws DataAccessException {
-        configureDatabase();
+        DBI dbi = new DBI();
+        dbi.configureDatabase(createStatements);
     }
     private final String[] createStatements = {
             """
@@ -26,41 +27,6 @@ public class SQLAuthAccess implements AuthAccess {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
-
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Data Access Exception",e);
-        }
-    }
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("Data Access Exception", ex);
-        }
-    }
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
         var authToken = rs.getString("authToken");
@@ -74,7 +40,8 @@ public class SQLAuthAccess implements AuthAccess {
     public AuthData createAuth(String username) throws DataAccessException {
         String newAuthToken = generateToken();
         var statement = "INSERT INTO authData (authToken, username) VALUES (?, ?)";
-        executeUpdate(statement, newAuthToken, username);
+        DBI dbi = new DBI();
+        dbi.executeUpdate(statement, newAuthToken, username);
         return new AuthData(newAuthToken, username);
     }
 
@@ -102,12 +69,14 @@ public class SQLAuthAccess implements AuthAccess {
             throw new DataAccessException("Data Access Exception");
         }
         var statement = "DELETE FROM authData WHERE authToken=?";
-        executeUpdate(statement, authToken);
+        DBI dbi = new DBI();
+        dbi.executeUpdate(statement, authToken);
     }
 
     @Override
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE authData";
-        executeUpdate(statement);
+        DBI dbi = new DBI();
+        dbi.executeUpdate(statement);
     }
 }

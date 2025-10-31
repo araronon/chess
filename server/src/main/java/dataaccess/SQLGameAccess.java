@@ -19,7 +19,8 @@ import static java.sql.Types.NULL;
 public class SQLGameAccess implements GameAccess {
 
     public SQLGameAccess() throws DataAccessException {
-        configureDatabase();
+        DBI dbi = new DBI();
+        dbi.configureDatabase(createStatements);
     }
 
     private final String[] createStatements = {
@@ -33,44 +34,12 @@ public class SQLGameAccess implements GameAccess {
             """
     };
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
 
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Data Access Exception",e);
-        }
-    }
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("Data Access Exception", ex);
-        }
-    }
     @Override
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE gameData";
-        executeUpdate(statement);
+        DBI dbi = new DBI();
+        dbi.executeUpdate(statement);
     }
 
     @Override
@@ -90,7 +59,8 @@ public class SQLGameAccess implements GameAccess {
                             GameData gameData = new GameData(newGameId, null, null, gameName, new ChessGame());
                             var insertstatement = "INSERT INTO gameData (gameID, json) VALUES (?, ?)";
                             String json = new Gson().toJson(gameData);
-                            executeUpdate(insertstatement, newGameId, json);
+                            DBI dbi = new DBI();
+                            dbi.executeUpdate(insertstatement, newGameId, json);
                             return newGameId;
                         }
                     }
@@ -136,12 +106,14 @@ public class SQLGameAccess implements GameAccess {
                 GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(), gameData.game());
                 var blackstatement = "UPDATE gameData SET json = ? WHERE gameID = ?";
                 String json = new Gson().toJson(newGameData);
-                executeUpdate(blackstatement, json, gameID);
+                DBI dbi = new DBI();
+                dbi.executeUpdate(blackstatement, json, gameID);
             } else {
                 GameData newGameData = new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(), gameData.game());
                 var whitestatement = "UPDATE gameData SET json = ? WHERE gameID = ?";
                 String json = new Gson().toJson(newGameData);
-                executeUpdate(whitestatement, json, gameID);
+                DBI dbi = new DBI();
+                dbi.executeUpdate(whitestatement, json, gameID);
             }
         } catch(Exception e) {
                 throw new DataAccessException("Data Access Exception");

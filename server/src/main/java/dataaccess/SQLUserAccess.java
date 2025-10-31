@@ -11,7 +11,8 @@ import static java.sql.Types.NULL;
 
 public class SQLUserAccess implements UserAccess {
     public SQLUserAccess() throws DataAccessException {
-        configureDatabase();
+        DBI dbi = new DBI();
+        dbi.configureDatabase(createStatements);
     }
 
     private final String[] createStatements = {
@@ -26,41 +27,6 @@ public class SQLUserAccess implements UserAccess {
             """
     };
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Data Access Exception",e);
-        }
-    }
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("Data Access Exception", ex);
-        }
-    }
-
     private String hashUserPassword(String clearTextPassword) throws DataAccessException {
         String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
         return hashedPassword;
@@ -69,7 +35,8 @@ public class SQLUserAccess implements UserAccess {
     @Override
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE userdata";
-        executeUpdate(statement);
+        DBI dbi = new DBI();
+        dbi.executeUpdate(statement);
     }
 
     private UserData readUser(ResultSet rs) throws SQLException {
@@ -102,6 +69,7 @@ public class SQLUserAccess implements UserAccess {
     public void createUser(UserData user) throws DataAccessException {
         String hashedPassword = hashUserPassword(user.password());
         var statement = "INSERT INTO userdata (username, hashedPassword, email) VALUES (?, ?, ?)";
-        executeUpdate(statement, user.username(), hashedPassword, user.email());
+        DBI dbi = new DBI();
+        dbi.executeUpdate(statement, user.username(), hashedPassword, user.email());
     }
 }
