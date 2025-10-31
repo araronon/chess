@@ -1,21 +1,22 @@
 package service;
 import dataaccess.*;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserService {
 
 
-    private final MemoryUserAccess userAccess;
-    private final MemoryAuthAccess authAccess;
-    private final MemoryGameAccess gameAccess;
+    private final UserAccess userAccess;
+    private final AuthAccess authAccess;
+    private final GameAccess gameAccess;
 
-    public UserService(MemoryUserAccess userAccess, MemoryAuthAccess authAccess, MemoryGameAccess gameAccess) {
+    public UserService(UserAccess userAccess, AuthAccess authAccess, GameAccess gameAccess) {
         this.userAccess = userAccess;
         this.authAccess = authAccess;
         this.gameAccess = gameAccess;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws BadRequestException, AlreadyTakenException {
+    public RegisterResult register(RegisterRequest registerRequest) throws BadRequestException, AlreadyTakenException, DataAccessException {
         UserData userCheck = userAccess.getUser(registerRequest.username());
         if (userCheck != null) {
             throw new AlreadyTakenException();
@@ -29,7 +30,7 @@ public class UserService {
         return registerResult;
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException {
+    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
         if (loginRequest.username() == null || loginRequest.password() == null) {
             throw new BadRequestException();
         }
@@ -37,7 +38,7 @@ public class UserService {
         if (userInfo == null) {
             throw new UnauthorizedException();
         }
-        if (loginRequest.password().equals(userInfo.password()) && (loginRequest.username().equals(userInfo.username()))) {
+        if (verifyUser(userInfo.password(),loginRequest.password()) && (loginRequest.username().equals(userInfo.username()))) {
             AuthData authInfo = authAccess.createAuth(loginRequest.username());
             LoginResult loginResult = new LoginResult(authInfo.authToken(),authInfo.username());
             return loginResult;
@@ -46,13 +47,17 @@ public class UserService {
         }
     }
 
-    public void logout(String authToken) throws UnauthorizedException {
+    boolean verifyUser(String hashedPassword, String providedClearTextPassword) {
+        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
+    }
+
+    public void logout(String authToken) throws UnauthorizedException, DataAccessException {
         if (authAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException();
         }
         authAccess.deleteAuth(authToken);
     }
-    public void clear() {
+    public void clear() throws DataAccessException {
         userAccess.clear();
         gameAccess.clear();
         authAccess.clear();

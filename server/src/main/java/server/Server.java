@@ -9,13 +9,26 @@ import service.*;
 public class Server {
 
     private final Javalin javalin;
-    private final MemoryUserAccess userAccess = new MemoryUserAccess();
-    private final MemoryAuthAccess authAccess = new MemoryAuthAccess();
-    private final MemoryGameAccess gameAccess = new MemoryGameAccess();
-    private final UserService userService = new UserService(userAccess, authAccess, gameAccess);
-    private final GameService gameService = new GameService(userAccess, authAccess, gameAccess);
+    private final UserService userService;
+    private final GameService gameService;
 
     public Server() {
+        UserAccess userAccess;
+        AuthAccess authAccess;
+        GameAccess gameAccess;
+        try {
+            userAccess = new SQLUserAccess();
+            authAccess = new SQLAuthAccess();
+            gameAccess = new SQLGameAccess();
+        }
+        catch (Exception ex) {
+            userAccess = new MemoryUserAccess();
+            authAccess = new MemoryAuthAccess();
+            gameAccess = new MemoryGameAccess();
+        }
+        userService = new UserService(userAccess, authAccess, gameAccess);
+        gameService = new GameService(userAccess, authAccess, gameAccess);
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
@@ -63,6 +76,7 @@ public class Server {
             var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
             context.status(500).result(msg);
         }
+
 
     }
 

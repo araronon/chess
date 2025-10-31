@@ -9,17 +9,18 @@ import java.util.Map;
 
 
 public class GameService {
-    private final MemoryUserAccess userAccess;
-    private final MemoryAuthAccess authAccess;
-    private final MemoryGameAccess gameAccess;
 
-    public GameService(MemoryUserAccess userAccess, MemoryAuthAccess authAccess, MemoryGameAccess gameAccess) {
+    private final UserAccess userAccess;
+    private final AuthAccess authAccess;
+    private final GameAccess gameAccess;
+
+    public GameService(UserAccess userAccess, AuthAccess authAccess, GameAccess gameAccess) {
         this.userAccess = userAccess;
         this.authAccess = authAccess;
         this.gameAccess = gameAccess;
     }
 
-    public Map<String,Collection<GameData>> listGames(String authToken) throws UnauthorizedException {
+    public Map<String,Collection<GameData>> listGames(String authToken) throws UnauthorizedException, DataAccessException {
         if (authAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException();
         }
@@ -29,7 +30,7 @@ public class GameService {
         return formattedList;
     }
 
-    public GameResult createGame(GameRequest gameRequest, String authToken) throws UnauthorizedException, BadRequestException {
+    public GameResult createGame(GameRequest gameRequest, String authToken) throws UnauthorizedException, BadRequestException, DataAccessException {
         if (gameRequest.gameName() == null || authToken == null) {
             throw new BadRequestException();
         }
