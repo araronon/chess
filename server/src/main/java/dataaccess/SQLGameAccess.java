@@ -55,7 +55,7 @@ public class SQLGameAccess implements GameAccess {
         }
     }
 
-    public void configureDatabase() throws DataAccessException {
+    private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
@@ -99,7 +99,7 @@ public class SQLGameAccess implements GameAccess {
         return newGameId;
     }
 
-    public GameData readGame(ResultSet rs) throws SQLException {
+    private GameData readGame(ResultSet rs) throws SQLException {
         var gameID = rs.getInt("gameID");
         var json = rs.getString("json");
         Gson gson = new Gson();

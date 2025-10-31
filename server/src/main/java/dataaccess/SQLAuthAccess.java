@@ -49,7 +49,7 @@ public class SQLAuthAccess implements AuthAccess {
         }
     }
 
-    public void configureDatabase() throws DataAccessException {
+    private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
@@ -62,7 +62,7 @@ public class SQLAuthAccess implements AuthAccess {
         }
     }
 
-    public AuthData readAuth(ResultSet rs) throws SQLException {
+    private AuthData readAuth(ResultSet rs) throws SQLException {
         var authToken = rs.getString("authToken");
         var username = rs.getString("username");
         AuthData authData = new AuthData(authToken, username);

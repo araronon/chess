@@ -48,7 +48,7 @@ public class SQLUserAccess implements UserAccess {
         }
     }
 
-    public void configureDatabase() throws DataAccessException {
+    private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
@@ -61,7 +61,7 @@ public class SQLUserAccess implements UserAccess {
         }
     }
 
-    public String hashUserPassword(String clearTextPassword) throws DataAccessException {
+    private String hashUserPassword(String clearTextPassword) throws DataAccessException {
         String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
         return hashedPassword;
     }
@@ -72,7 +72,7 @@ public class SQLUserAccess implements UserAccess {
         executeUpdate(statement);
     }
 
-    public UserData readUser(ResultSet rs) throws SQLException {
+    private UserData readUser(ResultSet rs) throws SQLException {
         var username = rs.getString("username");
         var hashedPassword = rs.getString("hashedPassword");
         var email = rs.getString("email");
