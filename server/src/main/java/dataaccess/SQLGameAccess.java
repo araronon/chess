@@ -1,6 +1,8 @@
 package dataaccess;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
+import model.AuthData;
 import model.GameData;
 
 import java.sql.Connection;
@@ -71,41 +73,75 @@ public class SQLGameAccess implements GameAccess {
     }
 
     @Override
-    public int createGame(String gameName) {
+    public int createGame(String gameName) throws DataAccessException {
         int newGameId = 1000;
-        for (int i = 0; i < 3000; i++) {
-            newGameId += 1;
-            var statement = "SELECT gameID from gameData WHERE gameID=?";
-            try (Connection conn = DatabaseManager.getConnection()) {
-                var statement = "SELECT authToken, username FROM authData WHERE authToken=?";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            for (int i = 0; i < 3000; i++) {
+                newGameId += 1;
+                var statement = "SELECT gameID FROM gameData WHERE gameID=?";
                 try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                    ps.setString(1, authToken);
+                    ps.setInt(1, newGameId);
                     try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            return readAuth(rs);
+                        if (!rs.next()) {
+                            GameData gameData = new GameData(newGameId, null, null, gameName, new ChessGame());
+                            var insertstatement = "INSERT INTO gameData (gameID, json) VALUES (?, ?)";
+                            String json = new Gson().toJson(gameData);
+                            executeUpdate(insertstatement, newGameId, json);
+                            return newGameId;
                         }
                     }
                 }
-            } catch (Exception e) {
+            }
+        } catch (Exception e) {
                 throw new DataAccessException("Data Access Exception");
             }
-            return null;
-            if (!gameMap.containsKey(newGameId)) {
-                break;
-            }
-        }
-        gameMap.put(newGameId, new GameData(newGameId, null, null, gameName, new ChessGame()));
         return newGameId;
     }
 
+    public GameData readGame(ResultSet rs) throws SQLException {
+        var gameID = rs.getInt("gameID");
+        var json = rs.getString("json");
+        Gson gson = new Gson();
+        GameData gameData = gson.fromJson(json, GameData.class);
+        return gameData;
+    }
+
     @Override
-    public GameData getGame(int gameID) {
+    public GameData getGame(int gameID) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT gameID, json FROM gameData WHERE gameID=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readGame(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Data Access Exception");
+        }
         return null;
     }
 
     @Override
-    public void updateGame(String playerColor, String username, int gameID) {
-
+    public void updateGame(String playerColor, String username, int gameID) throws DataAccessException {
+        GameData gameData = getGame(gameID);
+        try (Connection conn = DatabaseManager.getConnection()) {
+            if (playerColor.equals("BLACK")) {
+                GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(), gameData.game());
+                var blackstatement = "UPDATE gameData SET json = ? WHERE gameID = ?";
+                String json = new Gson().toJson(newGameData);
+                executeUpdate(blackstatement, json, gameID);
+            } else {
+                GameData newGameData = new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(), gameData.game());
+                var whitestatement = "UPDATE gameData SET json = ? WHERE gameID = ?";
+                String json = new Gson().toJson(newGameData);
+                executeUpdate(whitestatement, json, gameID);
+            }
+        } catch(Exception e) {
+                throw new DataAccessException("Data Access Exception");
+        }
     }
 
     @Override
