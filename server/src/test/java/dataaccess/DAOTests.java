@@ -182,7 +182,7 @@ public class DAOTests {
         SQLGameAccess sqlGameAccess = new SQLGameAccess();
         UserData testUser = new UserData("Testusername","Testpassword","Testemail");
         sqlUserAccess.createUser(testUser);
-        Assertions.assertThrows(DataAccessException.class, ()->sqlGameAccess.getGame(39939));
+        Assertions.assertNull(sqlGameAccess.getGame(39939));
     }
 
     @Test

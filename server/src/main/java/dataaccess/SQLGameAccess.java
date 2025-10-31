@@ -125,7 +125,7 @@ public class SQLGameAccess implements GameAccess {
         } catch (Exception e) {
             throw new DataAccessException("Data Access Exception");
         }
-        throw new DataAccessException("Data Access Exception");
+        return null;
     }
 
     @Override
