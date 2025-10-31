@@ -42,7 +42,7 @@ public class GameService {
         return new GameResult(gameID);
     }
 
-    public void joinGame(GameJoinRequest gameJoinRequest, String authToken) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+    public void joinGame(GameJoinRequest gameJoinRequest, String authToken) throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
         var authData = authAccess.getAuth(authToken);
         if (authData == null) {
             throw new UnauthorizedException();
@@ -65,7 +65,7 @@ public class GameService {
         gameAccess.updateGame(gameJoinRequest.playerColor(), authData.username(), gameJoinRequest.gameID());
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         userAccess.clear();
         gameAccess.clear();
         authAccess.clear();

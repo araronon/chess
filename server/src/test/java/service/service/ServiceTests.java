@@ -22,7 +22,7 @@ public class ServiceTests {
     private GameService gameService = new GameService(userAccess, authAccess, gameAccess);
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws DataAccessException {
         userService.clear();
         gameService.clear();
     }
@@ -30,7 +30,7 @@ public class ServiceTests {
     @Test
     @Order(1)
     @DisplayName("Positive - Successful Registration")
-    public void successfulRegistration() throws BadRequestException, AlreadyTakenException {
+    public void successfulRegistration() throws BadRequestException, AlreadyTakenException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultActual = userService.register(registerRequestTest);
         Assertions.assertEquals(registerResultActual.username(), registerRequestTest.username(), "Username registered");
@@ -48,7 +48,7 @@ public class ServiceTests {
     @Test
     @Order(3)
     @DisplayName("Positive - Login")
-    public void successfulLogin() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void successfulLogin() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
@@ -60,7 +60,7 @@ public class ServiceTests {
     @Test
     @Order(4)
     @DisplayName("Negative - Login")
-    public void failedLogin() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void failedLogin() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(TEST_USER,FALSE_PASSWORD);
@@ -82,7 +82,7 @@ public class ServiceTests {
     @Test
     @Order(6)
     @DisplayName("Negative - Logout")
-    public void failedLogout() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void failedLogout() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
@@ -93,7 +93,7 @@ public class ServiceTests {
     @Test
     @Order(7)
     @DisplayName("Positive - Create Game")
-    public void successfulCreateGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void successfulCreateGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
@@ -106,7 +106,7 @@ public class ServiceTests {
     @Test
     @Order(8)
     @DisplayName("Negative - Create Game")
-    public void failedCreateGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void failedCreateGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
@@ -118,7 +118,7 @@ public class ServiceTests {
     @Test
     @Order(9)
     @DisplayName("Positive - List Game")
-    public void successfulListGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void successfulListGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
@@ -133,7 +133,7 @@ public class ServiceTests {
     @Test
     @Order(10)
     @DisplayName("Negative - List Game")
-    public void failedListGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void failedListGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
@@ -146,7 +146,7 @@ public class ServiceTests {
     @Test
     @Order(11)
     @DisplayName("Positive - Join Game")
-    public void successfulJoinGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void successfulJoinGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
@@ -163,7 +163,7 @@ public class ServiceTests {
     @Test
     @Order(12)
     @DisplayName("Negative - Join Game")
-    public void failedJoinGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void failedJoinGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
@@ -177,7 +177,7 @@ public class ServiceTests {
     @Test
     @Order(13)
     @DisplayName("Positive - Clear")
-    public void successfulClear() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void successfulClear() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);

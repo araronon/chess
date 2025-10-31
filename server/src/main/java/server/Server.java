@@ -26,6 +26,7 @@ public class Server {
             authAccess = new MemoryAuthAccess();
             gameAccess = new MemoryGameAccess();
         }
+
         userService = new UserService(userAccess, authAccess, gameAccess);
         gameService = new GameService(userAccess, authAccess, gameAccess);
 
