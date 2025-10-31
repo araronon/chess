@@ -42,6 +42,21 @@ public class SQLGameAccess implements GameAccess {
         dbi.executeUpdate(statement);
     }
 
+    private boolean gameIDExists(Connection conn, int gameID) throws DataAccessException {
+        var statement = "SELECT gameID FROM gameData WHERE gameID=?";
+        try (PreparedStatement ps = conn.prepareStatement(statement)) {
+            ps.setInt(1, gameID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Data Access Exception");
+        }
+        return true;
+    }
+
     @Override
     public int createGame(String gameName) throws DataAccessException {
         if (gameName == null) {
@@ -51,19 +66,13 @@ public class SQLGameAccess implements GameAccess {
         try (Connection conn = DatabaseManager.getConnection()) {
             for (int i = 0; i < 3000; i++) {
                 newGameId += 1;
-                var statement = "SELECT gameID FROM gameData WHERE gameID=?";
-                try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                    ps.setInt(1, newGameId);
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (!rs.next()) {
-                            GameData gameData = new GameData(newGameId, null, null, gameName, new ChessGame());
-                            var insertstatement = "INSERT INTO gameData (gameID, json) VALUES (?, ?)";
-                            String json = new Gson().toJson(gameData);
-                            DBI dbi = new DBI();
-                            dbi.executeUpdate(insertstatement, newGameId, json);
-                            return newGameId;
-                        }
-                    }
+                if (!gameIDExists(conn, newGameId)) {
+                    GameData gameData = new GameData(newGameId, null, null, gameName, new ChessGame());
+                    var insertstatement = "INSERT INTO gameData (gameID, json) VALUES (?, ?)";
+                    String json = new Gson().toJson(gameData);
+                    DBI dbi = new DBI();
+                    dbi.executeUpdate(insertstatement, newGameId, json);
+                    return newGameId;
                 }
             }
         } catch (Exception e) {
