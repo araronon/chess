@@ -9,5 +9,5 @@ public interface GameAccess {
     int createGame(String gameName) throws DataAccessException;
     GameData getGame(int gameID) throws DataAccessException;
     void updateGame(String playerColor, String username, int gameID) throws DataAccessException;
-    Collection<GameData> listGames();
+    Collection<GameData> listGames() throws DataAccessException;
 }
