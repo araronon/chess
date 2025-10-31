@@ -98,6 +98,9 @@ public class SQLAuthAccess implements AuthAccess {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
+        if (authToken == null) {
+            throw new DataAccessException("Data Access Exception");
+        }
         var statement = "DELETE FROM authData WHERE authToken=?";
         executeUpdate(statement, authToken);
     }

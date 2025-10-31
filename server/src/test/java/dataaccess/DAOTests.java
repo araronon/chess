@@ -95,22 +95,157 @@ public class DAOTests {
         UserData testUser = new UserData("Testusername","Testpassword","Testemail");
         sqlUserAccess.createUser(testUser);
         AuthData authData = sqlAuthAccess.createAuth(testUser.username());
-        Assertions.assertNotNull(authData.authToken(), "Successful AuthToken");
+        AuthData authDataGetAuth = sqlAuthAccess.getAuth(authData.authToken());
+        Assertions.assertEquals(authData.authToken(),authDataGetAuth.authToken(), "Successful AuthToken");
     }
 
     @Test
-    @Order(6)
-    @DisplayName("Negative - createAuth")
-    public void unsuccessfulCreateAuth() throws DataAccessException {
+    @Order(8)
+    @DisplayName("Negative - getAuth")
+    public void unsuccessfulGetAuth() throws DataAccessException {
         SQLAuthAccess sqlAuthAccess = new SQLAuthAccess();
         SQLUserAccess sqlUserAccess = new SQLUserAccess();
         UserData testUser = new UserData("Testusername","Testpassword","Testemail");
         sqlUserAccess.createUser(testUser);
-        Assertions.assertThrows(DataAccessException.class, ()->sqlAuthAccess.createAuth(null));
+        Assertions.assertNull(sqlAuthAccess.getAuth(testUser.username()));
     }
 
     @Test
-    @Order(131)
+    @Order(9)
+    @DisplayName("Positive - deleteAuth")
+    public void successfulDeleteAuth() throws DataAccessException {
+        SQLAuthAccess sqlAuthAccess = new SQLAuthAccess();
+        SQLUserAccess sqlUserAccess = new SQLUserAccess();
+        UserData testUser = new UserData("Testusername","Testpassword","Testemail");
+        sqlUserAccess.createUser(testUser);
+        AuthData authData = sqlAuthAccess.createAuth(testUser.username());
+        sqlAuthAccess.deleteAuth(authData.authToken());
+        Assertions.assertNull(sqlAuthAccess.getAuth(authData.authToken()));
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Negative - deleteAuth")
+    public void unsuccessfulDeleteAuth() throws DataAccessException {
+        SQLAuthAccess sqlAuthAccess = new SQLAuthAccess();
+        SQLUserAccess sqlUserAccess = new SQLUserAccess();
+        UserData testUser = new UserData("Testusername","Testpassword","Testemail");
+        sqlUserAccess.createUser(testUser);
+        Assertions.assertThrows(DataAccessException.class,()-> sqlAuthAccess.deleteAuth(null));
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("Positive - createGame")
+    public void successfulCreateGame() throws DataAccessException {
+        SQLAuthAccess sqlAuthAccess = new SQLAuthAccess();
+        SQLUserAccess sqlUserAccess = new SQLUserAccess();
+        SQLGameAccess sqlGameAccess = new SQLGameAccess();
+        UserData testUser = new UserData("Testusername","Testpassword","Testemail");
+        sqlUserAccess.createUser(testUser);
+        int gameID = sqlGameAccess.createGame("Test Game");
+        Assertions.assertEquals(1001,gameID);
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Negative - CreateGame")
+    public void unsuccessfulCreateGame() throws DataAccessException {
+        SQLAuthAccess sqlAuthAccess = new SQLAuthAccess();
+        SQLUserAccess sqlUserAccess = new SQLUserAccess();
+        SQLGameAccess sqlGameAccess = new SQLGameAccess();
+        UserData testUser = new UserData("Testusername","Testpassword","Testemail");
+        sqlUserAccess.createUser(testUser);
+        Assertions.assertThrows(DataAccessException.class, ()->sqlGameAccess.createGame(null));
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("Positive - getGame")
+    public void successfulGetGame() throws DataAccessException {
+        SQLAuthAccess sqlAuthAccess = new SQLAuthAccess();
+        SQLUserAccess sqlUserAccess = new SQLUserAccess();
+        SQLGameAccess sqlGameAccess = new SQLGameAccess();
+        UserData testUser = new UserData("Testusername","Testpassword","Testemail");
+        sqlUserAccess.createUser(testUser);
+        int gameID = sqlGameAccess.createGame("Test Game");
+        GameData gameData = sqlGameAccess.getGame(gameID);
+        Assertions.assertEquals(gameData.gameID(),gameID);
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("Negative - GetGame")
+    public void unsuccessfulGetGame() throws DataAccessException {
+        SQLAuthAccess sqlAuthAccess = new SQLAuthAccess();
+        SQLUserAccess sqlUserAccess = new SQLUserAccess();
+        SQLGameAccess sqlGameAccess = new SQLGameAccess();
+        UserData testUser = new UserData("Testusername","Testpassword","Testemail");
+        sqlUserAccess.createUser(testUser);
+        Assertions.assertThrows(DataAccessException.class, ()->sqlGameAccess.getGame(39939));
+    }
+
+    @Test
+    @Order(15)
+    @DisplayName("Positive - updateGame")
+    public void successfulUpdateGame() throws DataAccessException {
+        SQLAuthAccess sqlAuthAccess = new SQLAuthAccess();
+        SQLUserAccess sqlUserAccess = new SQLUserAccess();
+        SQLGameAccess sqlGameAccess = new SQLGameAccess();
+        UserData testUser = new UserData("Testusername","Testpassword","Testemail");
+        sqlUserAccess.createUser(testUser);
+        int gameID = sqlGameAccess.createGame("Test Game");
+        sqlGameAccess.updateGame("BLACK","Testusername",1001);
+        GameData gameData = sqlGameAccess.getGame(gameID);
+        Assertions.assertEquals(gameData.blackUsername(),testUser.username());
+    }
+
+    @Test
+    @Order(16)
+    @DisplayName("Negative - joinGame")
+    public void unsuccessfulJoinGame() throws DataAccessException {
+        SQLAuthAccess sqlAuthAccess = new SQLAuthAccess();
+        SQLUserAccess sqlUserAccess = new SQLUserAccess();
+        SQLGameAccess sqlGameAccess = new SQLGameAccess();
+        UserData testUser = new UserData("Testusername","Testpassword","Testemail");
+        sqlUserAccess.createUser(testUser);
+        int gameID = sqlGameAccess.createGame("Test Game");
+        Assertions.assertThrows(DataAccessException.class, ()->sqlGameAccess.updateGame("BLACK","Testusername",50000));
+    }
+
+    @Test
+    @Order(17)
+    @DisplayName("Positive - listGames")
+    public void successfulListGames() throws DataAccessException {
+        SQLAuthAccess sqlAuthAccess = new SQLAuthAccess();
+        SQLUserAccess sqlUserAccess = new SQLUserAccess();
+        SQLGameAccess sqlGameAccess = new SQLGameAccess();
+        UserData testUser = new UserData("Testusername","Testpassword","Testemail");
+        sqlUserAccess.createUser(testUser);
+        int gameID = sqlGameAccess.createGame("Test Game");
+        sqlGameAccess.updateGame("BLACK","Testusername",1001);
+        List<GameData> gameDataActual = new ArrayList<>(sqlGameAccess.listGames());
+        Assertions.assertEquals(gameDataActual.get(0).blackUsername(),testUser.username());
+    }
+
+    @Test
+    @Order(18)
+    @DisplayName("Negative - listGames")
+    public void unsuccessfulListGames() throws DataAccessException {
+        SQLAuthAccess sqlAuthAccess = new SQLAuthAccess();
+        SQLUserAccess sqlUserAccess = new SQLUserAccess();
+        SQLGameAccess sqlGameAccess = new SQLGameAccess();
+        UserData testUser = new UserData("Testusername","Testpassword","Testemail");
+        sqlUserAccess.createUser(testUser);
+        int gameID = sqlGameAccess.createGame("Test Game");
+        List<GameData> gameDataActual = new ArrayList<>(sqlGameAccess.listGames());
+        Assertions.assertEquals(gameDataActual.get(0).whiteUsername(),null);
+    }
+
+
+
+    @Test
+    @Order(19)
     @DisplayName("Positive - clear")
     public void successfulClear() throws DataAccessException {
         SQLUserAccess sqlUserAccess = new SQLUserAccess();

@@ -75,6 +75,9 @@ public class SQLGameAccess implements GameAccess {
 
     @Override
     public int createGame(String gameName) throws DataAccessException {
+        if (gameName == null) {
+            throw new DataAccessException("Data Access Exception");
+        }
         int newGameId = 1000;
         try (Connection conn = DatabaseManager.getConnection()) {
             for (int i = 0; i < 3000; i++) {
@@ -122,7 +125,7 @@ public class SQLGameAccess implements GameAccess {
         } catch (Exception e) {
             throw new DataAccessException("Data Access Exception");
         }
-        return null;
+        throw new DataAccessException("Data Access Exception");
     }
 
     @Override
