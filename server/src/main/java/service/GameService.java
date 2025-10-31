@@ -42,7 +42,8 @@ public class GameService {
         return new GameResult(gameID);
     }
 
-    public void joinGame(GameJoinRequest gameJoinRequest, String authToken) throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
+    public void joinGame(GameJoinRequest gameJoinRequest, String authToken) throws UnauthorizedException,
+            AlreadyTakenException, BadRequestException, DataAccessException {
         var authData = authAccess.getAuth(authToken);
         if (authData == null) {
             throw new UnauthorizedException();
