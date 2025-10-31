@@ -70,7 +70,7 @@ public class ServiceTests {
     @Test
     @Order(5)
     @DisplayName("Positive - Logout")
-    public void successfulLogout() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void successfulLogout() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = userService.register(registerRequestTest);
         LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
