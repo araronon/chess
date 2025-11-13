@@ -59,7 +59,8 @@ public class Server {
             String reqJson = context.body();
             String authToken = context.header("authorization");
             var gameJoinReq = serializer.fromJson(reqJson, GameJoinRequest.class);
-            gameService.joinGame(gameJoinReq, authToken);
+            GameJoinRequest newGameJoinReq = new GameJoinRequest(gameJoinReq.playerColor(), gameJoinReq.gameID(), authToken);
+            gameService.joinGame(gameJoinReq);
             context.status(200).result("{}");
         }
         catch (BadRequestException ex) {
@@ -105,7 +106,8 @@ public class Server {
             String reqJson = context.body();
             String authToken = context.header("authorization");
             var gameReq = serializer.fromJson(reqJson, GameRequest.class);
-            var idData = gameService.createGame(gameReq, authToken);
+            GameRequest newGameRequest = new GameRequest(gameReq.gameName(), authToken);
+            var idData = gameService.createGame(newGameRequest);
             context.status(200).result(serializer.toJson(idData));
         }
         catch (BadRequestException ex) {

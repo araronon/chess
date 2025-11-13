@@ -1,11 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import model.*;
-import service.LoginRequest;
-import service.LoginResult;
-import service.RegisterRequest;
-import service.RegisterResult;
+import service.*;
 
 import java.net.*;
 import java.net.http.*;
@@ -42,15 +38,33 @@ public class ServerFacade {
     }
 
     public String logout(String authToken) throws ResponseException {
-        var request = buildRequest("DELETE", "session", logout);
+        var request = buildRequest("DELETE", "session", authToken);
         var response = sendRequest(request);
         return handleResponse(response, String.class);
     }
 
     public String clear() throws ResponseException {
-        var request = buildRequest("DELETE", "session", login);
+        var request = buildRequest("DELETE", "session", null); // nothing passed in
         var response = sendRequest(request);
-        return handleResponse(response, LoginResult.class);
+        return handleResponse(response, String.class);
+    }
+
+    public GameList listGames(String authToken) throws ResponseException {
+        var request = buildRequest("GET", "game", authToken);
+        var response = sendRequest(request);
+        return handleResponse(response, GameList.class);
+    }
+
+    public GameResult createGame(GameRequest gameRequest) throws ResponseException {
+        var request = buildRequest("POST", "game", gameRequest);
+        var response = sendRequest(request);
+        return handleResponse(response, GameResult.class);
+    }
+
+    public String joinGame(GameJoinRequest gameRequest) throws ResponseException {
+        var request = buildRequest("POST", "game", gameRequest);
+        var response = sendRequest(request);
+        return handleResponse(response, String.class);
     }
 
 

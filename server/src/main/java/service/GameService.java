@@ -20,17 +20,19 @@ public class GameService {
         this.gameAccess = gameAccess;
     }
 
-    public Map<String,Collection<GameData>> listGames(String authToken) throws UnauthorizedException, DataAccessException {
+    public GameList listGames(String authToken) throws UnauthorizedException, DataAccessException {
         if (authAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException();
         }
         Collection<GameData> gameList = gameAccess.listGames();
         Map<String, Collection<GameData>> formattedList = new HashMap<>();
         formattedList.put("games",gameList);
-        return formattedList;
+        GameList gamesList = new GameList(formattedList);
+        return gamesList;
     }
 
-    public GameResult createGame(GameRequest gameRequest, String authToken) throws UnauthorizedException, BadRequestException, DataAccessException {
+    public GameResult createGame(GameRequest gameRequest) throws UnauthorizedException, BadRequestException, DataAccessException {
+        String authToken = gameRequest.authToken();
         if (gameRequest.gameName() == null || authToken == null) {
             throw new BadRequestException();
         }
@@ -42,8 +44,9 @@ public class GameService {
         return new GameResult(gameID);
     }
 
-    public void joinGame(GameJoinRequest gameJoinRequest, String authToken) throws UnauthorizedException,
+    public void joinGame(GameJoinRequest gameJoinRequest) throws UnauthorizedException,
             AlreadyTakenException, BadRequestException, DataAccessException {
+        String authToken = gameJoinRequest.authToken();
         var authData = authAccess.getAuth(authToken);
         if (authData == null) {
             throw new UnauthorizedException();
