@@ -37,16 +37,16 @@ public class ServerFacade {
         return handleResponse(response, LoginResult.class);
     }
 
-    public String logout(String authToken) throws ResponseException {
+    public void logout(String authToken) throws ResponseException {
         var request = buildRequest("DELETE", "session", authToken);
         var response = sendRequest(request);
-        return handleResponse(response, String.class);
+        handleResponse(response, null);
     }
 
-    public String clear() throws ResponseException {
+    public void clear() throws ResponseException {
         var request = buildRequest("DELETE", "session", null); // nothing passed in
         var response = sendRequest(request);
-        return handleResponse(response, String.class);
+        handleResponse(response, null);
     }
 
     public GameList listGames(String authToken) throws ResponseException {
@@ -61,10 +61,10 @@ public class ServerFacade {
         return handleResponse(response, GameResult.class);
     }
 
-    public String joinGame(GameJoinRequest gameRequest) throws ResponseException {
-        var request = buildRequest("POST", "game", gameRequest);
+    public void joinGame(GameJoinRequest gameRequest) throws ResponseException {
+        var request = buildRequest("PUT", "game", gameRequest);
         var response = sendRequest(request);
-        return handleResponse(response, String.class);
+        handleResponse(response, null);
     }
 
 
