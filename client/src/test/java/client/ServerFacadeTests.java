@@ -24,14 +24,16 @@ public class ServerFacadeTests {
     private static final String TEST_PASSWORD = "TEST_PASSWORD";
     private static final String TEST_EMAIL = "TEST_EMAIL";
     private static final String FALSE_PASSWORD = "falsePassword";
-    private static final String serverUrl = "http://localhost:" + "0";
-    private final ServerFacade serverFacade = new ServerFacade(serverUrl);
+    private static String serverUrl;
+    private static ServerFacade serverFacade;
 
     @BeforeAll
     public static void init() {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
+        String serverUrl = "http://localhost:" + port + "/";
+        serverFacade = new ServerFacade(serverUrl);
 
     }
 
@@ -45,7 +47,6 @@ public class ServerFacadeTests {
     @Order(1)
     @DisplayName("Positive - Successful Registration")
     public void successfulRegistration() throws BadRequestException, AlreadyTakenException, DataAccessException, ResponseException {
-
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultActual = serverFacade.register(registerRequestTest);
         Assertions.assertEquals(registerResultActual.username(), registerRequestTest.username(), "Username registered");
@@ -57,9 +58,9 @@ public class ServerFacadeTests {
 //    @DisplayName("Negative - Registration")
 //    public void failedRegistration() throws BadRequestException, AlreadyTakenException {
 //        RegisterRequest registerRequestTest = new RegisterRequest(null, null, null);
-//        Assertions.assertThrows(BadRequestException.class, () -> userService.register(registerRequestTest),"BadRequest");
+//        Assertions.assertThrows(BadRequestException.class, () -> serverFacade.register(registerRequestTest),"BadRequest");
 //    }
-//
+
 //    @Test
 //    @Order(3)
 //    @DisplayName("Positive - Login")
@@ -113,8 +114,8 @@ public class ServerFacadeTests {
 //        RegisterResult registerResultTest = userService.register(registerRequestTest);
 //        LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
 //        LoginResult loginResultTest = userService.login(loginRequestTest);
-//        GameRequest gameRequestTest = new GameRequest("My Game");
-//        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
+//        GameRequest gameRequestTest = new GameRequest("My Game", loginResultTest.authToken());
+//        GameResult gameResultActual = gameService.createGame(gameRequestTest);
 //        Assertions.assertEquals(1001, gameResultActual.gameID());
 //    }
 //
@@ -126,8 +127,8 @@ public class ServerFacadeTests {
 //        RegisterResult registerResultTest = userService.register(registerRequestTest);
 //        LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
 //        LoginResult loginResultTest = userService.login(loginRequestTest);
-//        GameRequest gameRequestTest = new GameRequest(null);
-//        Assertions.assertThrows(BadRequestException.class, ()->gameService.createGame(gameRequestTest, loginResultTest.authToken()));
+//        GameRequest gameRequestTest = new GameRequest(null, loginResultTest.authToken());
+//        Assertions.assertThrows(BadRequestException.class, ()->gameService.createGame(gameRequestTest));
 //    }
 //
 //    @Test
@@ -138,9 +139,9 @@ public class ServerFacadeTests {
 //        RegisterResult registerResultTest = userService.register(registerRequestTest);
 //        LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
 //        LoginResult loginResultTest = userService.login(loginRequestTest);
-//        GameRequest gameRequestTest = new GameRequest("My Game");
-//        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
-//        Map<String, Collection<GameData>> gameMap = gameService.listGames(loginResultTest.authToken());
+//        GameRequest gameRequestTest = new GameRequest("My Game", loginResultTest.authToken());
+//        GameResult gameResultActual = gameService.createGame(gameRequestTest);
+//        Map<String,Collection<GameData>> gameMap = gameService.listGames(loginResultTest.authToken()).gameInformation();
 //        List<GameData> gameList = new ArrayList<>(gameMap.get("games"));
 //        Assertions.assertEquals(gameList.get(0).gameName(), "My Game");
 //    }
@@ -153,8 +154,8 @@ public class ServerFacadeTests {
 //        RegisterResult registerResultTest = userService.register(registerRequestTest);
 //        LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
 //        LoginResult loginResultTest = userService.login(loginRequestTest);
-//        GameRequest gameRequestTest = new GameRequest("My Game");
-//        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
+//        GameRequest gameRequestTest = new GameRequest("My Game",loginResultTest.authToken());
+//        GameResult gameResultActual = gameService.createGame(gameRequestTest);
 //        Assertions.assertThrows(UnauthorizedException.class,()-> gameService.listGames("Not a valid authToken"));
 //    }
 //
@@ -166,11 +167,11 @@ public class ServerFacadeTests {
 //        RegisterResult registerResultTest = userService.register(registerRequestTest);
 //        LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
 //        LoginResult loginResultTest = userService.login(loginRequestTest);
-//        GameRequest gameRequestTest = new GameRequest("My Game");
-//        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
-//        GameJoinRequest gameJoinRequestTest = new GameJoinRequest("BLACK", 1001);
-//        gameService.joinGame(gameJoinRequestTest, loginResultTest.authToken());
-//        Map<String,Collection<GameData>> gameMap = gameService.listGames(loginResultTest.authToken());
+//        GameRequest gameRequestTest = new GameRequest("My Game",loginResultTest.authToken());
+//        GameResult gameResultActual = gameService.createGame(gameRequestTest);
+//        GameJoinRequest gameJoinRequestTest = new GameJoinRequest("BLACK", 1001, loginResultTest.authToken());
+//        gameService.joinGame(gameJoinRequestTest);
+//        Map<String,Collection<GameData>> gameMap = gameService.listGames(loginResultTest.authToken()).gameInformation();
 //        List<GameData> gameList = new ArrayList<>(gameMap.get("games"));
 //        Assertions.assertEquals(gameList.get(0).blackUsername(), "TEST_USER");
 //    }
@@ -183,10 +184,10 @@ public class ServerFacadeTests {
 //        RegisterResult registerResultTest = userService.register(registerRequestTest);
 //        LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
 //        LoginResult loginResultTest = userService.login(loginRequestTest);
-//        GameRequest gameRequestTest = new GameRequest("My Game");
-//        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
-//        GameJoinRequest gameJoinRequestTest = new GameJoinRequest("GREEN", 1001);
-//        Assertions.assertThrows(BadRequestException.class,()-> gameService.joinGame(gameJoinRequestTest, loginResultTest.authToken()));
+//        GameRequest gameRequestTest = new GameRequest("My Game", loginResultTest.authToken());
+//        GameResult gameResultActual = gameService.createGame(gameRequestTest);
+//        GameJoinRequest gameJoinRequestTest = new GameJoinRequest("GREEN", 1001, loginResultTest.authToken());
+//        Assertions.assertThrows(BadRequestException.class,()-> gameService.joinGame(gameJoinRequestTest));
 //    }
 //
 //    @Test
@@ -197,9 +198,10 @@ public class ServerFacadeTests {
 //        RegisterResult registerResultTest = userService.register(registerRequestTest);
 //        LoginRequest loginRequestTest = new LoginRequest(TEST_USER,TEST_PASSWORD);
 //        LoginResult loginResultTest = userService.login(loginRequestTest);
-//        GameRequest gameRequestTest = new GameRequest("My Game");
-//        GameResult gameResultActual = gameService.createGame(gameRequestTest, loginResultTest.authToken());
+//        GameRequest gameRequestTest = new GameRequest("My Game", loginResultTest.authToken());
+//        GameResult gameResultActual = gameService.createGame(gameRequestTest);
 //        gameService.clear();
 //        Assertions.assertThrows(UnauthorizedException.class, ()-> userService.login(loginRequestTest));
 //    }
+
 }
