@@ -112,7 +112,7 @@ public class ChessClient  {
             authToken = loginResult.authToken();
             return String.format("You logged in as %s.", visitorName);
         }
-        throw new ResponseException(ResponseException.Code.ClientError, "Expected: <yourname> <yourpassword>");
+        throw new ResponseException("Expected: <yourname> <yourpassword>");
     }
 
     public String logout(String... params) throws ResponseException {
@@ -124,7 +124,7 @@ public class ChessClient  {
             authToken = "no AuthToken here";
             return String.format("You logged out.");
         }
-        throw new ResponseException(ResponseException.Code.ClientError, "Expected: no additional parameters");
+        throw new ResponseException("Expected: no additional parameters");
     }
 
     public String register(String... params) throws ResponseException {
@@ -137,7 +137,7 @@ public class ChessClient  {
             authToken = registerResult.authToken();
             return String.format("You logged in as %s.", visitorName);
         }
-        throw new ResponseException(ResponseException.Code.ClientError, "Expected: <yourname> <yourpassword> <youremail>");
+        throw new ResponseException("Expected: <yourname> <yourpassword> <youremail>");
     }
 //
 //    public String rescuePet(String... params) throws ResponseException {
@@ -225,12 +225,12 @@ public class ChessClient  {
 //
     private void assertLoggedIn() throws ResponseException {
         if (state == State.LOGGEDOUT) {
-            throw new ResponseException(ResponseException.Code.ClientError, "You must log in");
+            throw new ResponseException("You must log in");
         }
     }
     private void assertLoggedOut() throws ResponseException {
         if (state == State.LOGGEDIN) {
-            throw new ResponseException(ResponseException.Code.ClientError, "You must log out first");
+            throw new ResponseException("You must log out first");
         }
     }
 }
