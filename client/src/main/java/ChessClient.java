@@ -73,7 +73,7 @@ public class ChessClient  {
                 case "creategame" -> createGame(params);
                 case "listgames" -> listGames(params);
                 case "joingame" -> joinGame(params);
-                case "observegame" -> observeGame(params);
+//                case "observegame" -> observeGame(params);
                 case "quit" -> "quit";
                 default -> unrecognizedCmd();
             };
@@ -211,21 +211,29 @@ public class ChessClient  {
     }
 
     private String checkPiece(ChessPiece piece) {
-        // ChessPiece.TeamColor.pieceColor
-        // ChessPiece.type
         if (piece == null) {
             return EMPTY;
-        switch (piece.getTeamColor()) {
-            case "WHITE" -> switch (piece.getPieceType()) {
-                case ""
-            }
-            case "BLACK" -> register(params);
         }
-
-
-
-
+        return switch (piece.getTeamColor()) {
+            case ChessGame.TeamColor.WHITE -> switch (piece.getPieceType()) {
+                case ChessPiece.PieceType.KING ->  WHITE_KING;
+                case ChessPiece.PieceType.ROOK ->  WHITE_ROOK;
+                case ChessPiece.PieceType.BISHOP ->  WHITE_BISHOP;
+                case ChessPiece.PieceType.PAWN ->  WHITE_PAWN;
+                case ChessPiece.PieceType.KNIGHT ->  WHITE_KNIGHT;
+                case ChessPiece.PieceType.QUEEN ->  WHITE_QUEEN;
+            };
+            case ChessGame.TeamColor.BLACK -> switch (piece.getPieceType()) {
+                case ChessPiece.PieceType.KING -> BLACK_KING;
+                case ChessPiece.PieceType.ROOK -> BLACK_ROOK;
+                case ChessPiece.PieceType.BISHOP -> BLACK_BISHOP;
+                case ChessPiece.PieceType.PAWN -> BLACK_PAWN;
+                case ChessPiece.PieceType.KNIGHT -> BLACK_KNIGHT;
+                case ChessPiece.PieceType.QUEEN -> BLACK_QUEEN;
+            };
+        };
     }
+
     private void assertLoggedIn() throws ResponseException {
         if (state == State.LOGGEDOUT) {
             throw new ResponseException("You must log in");
