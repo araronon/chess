@@ -17,82 +17,57 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-//    javalin.post("session", this::login);
-//    javalin.delete("db", this::clear);
-//    javalin.post("user",this::register);
-//    javalin.delete("session", this::logout);
-//    javalin.post("game",this::createGame);
-//    javalin.get("game",this::listGames);
-//    javalin.put("game",this::joinGame);
-
     public RegisterResult register(RegisterRequest register) throws ResponseException {
-        var request = buildRequest("POST", "user", register);
+        var request = buildRequest("POST", "user", register, null);
         var response = sendRequest(request);
         return handleResponse(response, RegisterResult.class);
     }
 
     public LoginResult login(LoginRequest login) throws ResponseException {
-        var request = buildRequest("POST", "session", login);
+        var request = buildRequest("POST", "session", login, null);
         var response = sendRequest(request);
         return handleResponse(response, LoginResult.class);
     }
 
     public void logout(String authToken) throws ResponseException {
-        var request = buildRequest("DELETE", "session", authToken);
+        var request = buildRequest("DELETE", "session", null, authToken);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
     public void clear() throws ResponseException {
-        var request = buildRequest("DELETE", "session", null); // nothing passed in
+        var request = buildRequest("DELETE", "db", null, null); // nothing passed in
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
     public GameList listGames(String authToken) throws ResponseException {
-        var request = buildRequest("GET", "game", authToken);
+        var request = buildRequest("GET", "game", null, authToken);
         var response = sendRequest(request);
         return handleResponse(response, GameList.class);
     }
 
     public GameResult createGame(GameRequest gameRequest) throws ResponseException {
-        var request = buildRequest("POST", "game", gameRequest);
+        var request = buildRequest("POST", "game", gameRequest, gameRequest.authToken());
         var response = sendRequest(request);
         return handleResponse(response, GameResult.class);
     }
 
     public void joinGame(GameJoinRequest gameRequest) throws ResponseException {
-        var request = buildRequest("PUT", "game", gameRequest);
+        var request = buildRequest("PUT", "game", gameRequest, gameRequest.authToken());
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
-
-
-//    public void deletePet(int id) throws ResponseException {
-//        var path = String.format("/pet/%s", id);
-//        var request = buildRequest("DELETE", path, null);
-//        var response = sendRequest(request);
-//        handleResponse(response, null);
-//    }
-//
-//    public void deleteAllPets() throws ResponseException {
-//        var request = buildRequest("DELETE", "/pet", null);
-//        sendRequest(request);
-//    }
-//
-//    public PetList listPets() throws ResponseException {
-//        var request = buildRequest("GET", "/pet", null);
-//        var response = sendRequest(request);
-//        return handleResponse(response, PetList.class);
-//    }
-
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
-                .uri(URI.create(serverUrl + path))
+                .uri(URI.create(serverUrl + "/" + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
+        }
+        if (authToken != null) {
+            request.setHeader("Authorization", authToken);
         }
         return request.build();
     }

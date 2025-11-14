@@ -58,8 +58,8 @@ public class ChessClient  {
 //
     public String eval(String input) {
         try {
-            String[] tokens = input.toLowerCase().split(" ");
-            String cmd = (tokens.length > 0) ? tokens[0] : "help";
+            String[] tokens = input.split(" ");
+            String cmd = tokens[0].toLowerCase();
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "login" -> login(params);
@@ -76,6 +76,9 @@ public class ChessClient  {
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
+//        catch(Exception ex) {
+//        return "Error: " + ex.getMessage();
+//    }
     }
 
     public String help() {
@@ -101,11 +104,11 @@ public class ChessClient  {
 
     public String login(String... params) throws ResponseException {
         assertLoggedOut();
-        if (params.length == 3) {
-            LoginRequest loginRequest = new LoginRequest(params[1], params[2]);
+        if (params.length == 2) {
+            LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
             LoginResult loginResult = server.login(loginRequest);
             state = State.LOGGEDIN;
-            visitorName = params[1];
+            visitorName = params[0];
             authToken = loginResult.authToken();
             return String.format("You logged in as %s.", visitorName);
         }
@@ -114,10 +117,10 @@ public class ChessClient  {
 
     public String logout(String... params) throws ResponseException {
         assertLoggedIn();
-        if (params.length == 1) {
+        if (params.length == 0) {
             server.logout(authToken);
             state = State.LOGGEDOUT;
-            visitorName = params[1];
+            visitorName = params[0];
             authToken = "no AuthToken here";
             return String.format("You logged out.");
         }
@@ -126,11 +129,11 @@ public class ChessClient  {
 
     public String register(String... params) throws ResponseException {
         assertLoggedOut();
-        if (params.length == 4) {
-            RegisterRequest registerRequest = new RegisterRequest(params[1], params[2], params[3]);
+        if (params.length == 3) {
+            RegisterRequest registerRequest = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult registerResult = server.register(registerRequest);
             state = State.LOGGEDIN;
-            visitorName = params[1];
+            visitorName = params[0];
             authToken = registerResult.authToken();
             return String.format("You logged in as %s.", visitorName);
         }

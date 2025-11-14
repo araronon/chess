@@ -3,6 +3,7 @@ import dataaccess.*;
 import model.*;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,9 +26,10 @@ public class GameService {
             throw new UnauthorizedException();
         }
         Collection<GameData> gameList = gameAccess.listGames();
-        Map<String, Collection<GameData>> formattedList = new HashMap<>();
-        formattedList.put("games",gameList);
-        GameList gamesList = new GameList(formattedList);
+        if (gameList == null) {
+            gameList = new ArrayList<>();
+        }
+        GameList gamesList = new GameList(gameList);
         return gamesList;
     }
 
