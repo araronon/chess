@@ -70,7 +70,7 @@ public class ChessClient  {
 //                case "listgames" -> listgames();
 //                case "joingame" -> joingame(params);
 //                case "observegame" -> observeGame(params);
-//                case "quit" -> "quit";
+                case "quit" -> "quit";
                 default -> help();
             };
         } catch (ResponseException ex) {

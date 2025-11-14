@@ -61,13 +61,13 @@ public class ServerFacade {
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
-                .uri(URI.create(serverUrl + "/" + path))
+                .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
         }
         if (authToken != null) {
-            request.setHeader("Authorization", authToken);
+            request.setHeader("authorization", authToken);
         }
         return request.build();
     }

@@ -60,7 +60,7 @@ public class Server {
             String authToken = context.header("authorization");
             var gameJoinReq = serializer.fromJson(reqJson, GameJoinRequest.class);
             GameJoinRequest newGameJoinReq = new GameJoinRequest(gameJoinReq.playerColor(), gameJoinReq.gameID(), authToken);
-            gameService.joinGame(gameJoinReq);
+            gameService.joinGame(newGameJoinReq);
             context.status(200).result("{}");
         }
         catch (BadRequestException ex) {
