@@ -1,6 +1,6 @@
 
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
+
 import com.google.gson.Gson;
 import model.*;
 import server.ResponseException;
@@ -15,6 +15,7 @@ public class ChessClient  {
     private ServerFacade server;
     private State state = State.LOGGEDOUT;
     private String authToken;
+    private HashMap<Integer, Integer> numberToId;
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -32,7 +33,7 @@ public class ChessClient  {
 
             try {
                 result = eval(line);
-                System.out.print(result);
+                System.out.println(result);
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -64,14 +65,15 @@ public class ChessClient  {
             return switch (cmd) {
                 case "login" -> login(params);
                 case "register" -> register(params);
-//                case "help" -> help();
+                case "help" -> help();
+                case "?" -> help();
                 case "logout" -> logout();
-//                case "creategame" -> createGame(params);
-//                case "listgames" -> listgames();
+                case "creategame" -> createGame(params);
+                case "listgames" -> listGames(params);
 //                case "joingame" -> joingame(params);
 //                case "observegame" -> observeGame(params);
                 case "quit" -> "quit";
-                default -> help();
+                default -> unrecognizedCmd();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
@@ -79,6 +81,12 @@ public class ChessClient  {
 //        catch(Exception ex) {
 //        return "Error: " + ex.getMessage();
 //    }
+    }
+
+    public String unrecognizedCmd() {
+        return """
+                Command not recognized. Type "help" for a list of possible commands
+                """;
     }
 
     public String help() {
@@ -120,8 +128,8 @@ public class ChessClient  {
         if (params.length == 0) {
             server.logout(authToken);
             state = State.LOGGEDOUT;
-            visitorName = params[0];
-            authToken = "no AuthToken here";
+            visitorName = null;
+            authToken = null;
             return String.format("You logged out.");
         }
         throw new ResponseException("Expected: no additional parameters");
@@ -138,6 +146,58 @@ public class ChessClient  {
             return String.format("You logged in as %s.", visitorName);
         }
         throw new ResponseException("Expected: <yourname> <yourpassword> <youremail>");
+    }
+
+    public String createGame(String... params) throws ResponseException {
+        assertLoggedIn();
+        if (params.length == 1) {
+            String gameName = params[0];
+            GameRequest gameRequest = new GameRequest(gameName, authToken);
+            GameResult gameResult = server.createGame(gameRequest);
+            return String.format("Successfully created game %s", gameRequest.gameName());
+        }
+        throw new ResponseException("Expected: no additional parameters");
+    }
+
+    public String listGames(String... params) throws ResponseException {
+        assertLoggedIn();
+        if (params.length == 0) {
+            List<GameData> gameList = new ArrayList<>(server.listGames(authToken).games());
+            int i = 1;
+            StringBuilder stringList = new StringBuilder();
+            for (GameData gameData : gameList) {
+                stringList.append(String.format("%d. Name: %s, Black Player: %s, White Player: %s\n", i, gameData.gameName(),
+                        gameData.blackUsername(), gameData.whiteUsername()));
+                numberToId.put(i, gameData.gameID());
+                i++;
+            }
+            return stringList.toString();
+        }
+        throw new ResponseException("Expected: no additional parameters");
+    }
+
+    public String joinGame(String... params) throws ResponseException {
+        assertLoggedIn();
+        if (params.length == 2) {
+            int gameNumber = Integer.parseInt(params[0]);
+            String playerColor = params[1].toUpperCase();
+            List<GameData> gameList = new ArrayList<>(server.listGames(authToken).games());
+            int currentGameID;
+            for (GameData gameData : gameList) {
+                currentGameID = gameData.gameID();
+                if (currentGameID == gameNumber) {
+                    GameJoinRequest gameJoinRequest = new GameJoinRequest(playerColor, currentGameID, authToken);
+                    server.joinGame(gameJoinRequest);
+                    return String.format("Successfully joined the game.");
+                }
+                stringList.append(String.format("%d. Name: %s, Black Player: %s, White Player: %s\n", i, gameData.gameName(),
+                        gameData.blackUsername(), gameData.whiteUsername()));
+
+                i++;
+            }
+            return stringList.toString();
+        }
+        throw new ResponseException("Expected: no additional parameters");
     }
 //
 //    public String rescuePet(String... params) throws ResponseException {

@@ -20,7 +20,7 @@ import java.util.Map;
 public class ServerFacadeTests {
 
     private static Server server;
-    private static final String TEST_USER = "TEST_USER";
+    private static final String TEST_USER = "TEST_USER5";
     private static final String TEST_PASSWORD = "TEST_PASSWORD";
     private static final String TEST_EMAIL = "TEST_EMAIL";
     private static final String FALSE_PASSWORD = "falsePassword";
@@ -28,13 +28,13 @@ public class ServerFacadeTests {
     private static ServerFacade serverFacade;
 
     @BeforeAll
-    public static void init() {
+    public static void init() throws ResponseException {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         serverUrl = "http://localhost:" + port + "/";
         serverFacade = new ServerFacade(serverUrl);
-
+        serverFacade.clear();
     }
 
     @AfterAll
