@@ -125,8 +125,8 @@ public class ServiceTests {
         LoginResult loginResultTest = userService.login(loginRequestTest);
         GameRequest gameRequestTest = new GameRequest("My Game", loginResultTest.authToken());
         GameResult gameResultActual = gameService.createGame(gameRequestTest);
-        Map<String,Collection<GameData>> gameMap = gameService.listGames(loginResultTest.authToken()).gameInformation();
-        List<GameData> gameList = new ArrayList<>(gameMap.get("games"));
+        Collection<GameData> gameListFirst = gameService.listGames(loginResultTest.authToken()).games();
+        List<GameData> gameList = new ArrayList<>(gameListFirst);
         Assertions.assertEquals(gameList.get(0).gameName(), "My Game");
     }
 
@@ -155,8 +155,8 @@ public class ServiceTests {
         GameResult gameResultActual = gameService.createGame(gameRequestTest);
         GameJoinRequest gameJoinRequestTest = new GameJoinRequest("BLACK", 1001, loginResultTest.authToken());
         gameService.joinGame(gameJoinRequestTest);
-        Map<String,Collection<GameData>> gameMap = gameService.listGames(loginResultTest.authToken()).gameInformation();
-        List<GameData> gameList = new ArrayList<>(gameMap.get("games"));
+        Collection<GameData> gameListFirst = gameService.listGames(loginResultTest.authToken()).games();
+        List<GameData> gameList = new ArrayList<>(gameListFirst);
         Assertions.assertEquals(gameList.get(0).blackUsername(), "TEST_USER");
     }
 
