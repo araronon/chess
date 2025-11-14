@@ -200,15 +200,29 @@ public class ChessClient  {
     }
 
     public void printBoard(ChessGame game, String playerColor) {
+        if (playerColor == "WHITE") {
+        }
         ChessBoard board = game.getBoard();
+        String boardString = "";
+        // Draw top
+        // Draw top
+        boardString = SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + SET_TEXT_COLOR_BLACK + " a "
+                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " b "
+                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " c "
+                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " d "
+                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " e "
+                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " f "
+                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " g "
+                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " h "
+                + SET_BG_COLOR_LIGHT_GREY + "   ";
+        System.out.print(boardString);
         for (int row = 1; row < 9; row++) {
             for (int col = 1; col < 9; col++) {
                 String piece = checkPiece(board.getPiece(new ChessPosition(row, col)));
-
+                boardString = boardString + piece;
                 };
-            }
         }
-    }
+        }
 
     private String checkPiece(ChessPiece piece) {
         if (piece == null) {
