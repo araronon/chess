@@ -15,7 +15,7 @@ public class ChessClient  {
     private ServerFacade server;
     private State state = State.LOGGEDOUT;
     private String authToken;
-    private HashMap<Integer, Integer> numberToId;
+    private HashMap<String, String> numberToId = new HashMap<>();
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -70,7 +70,7 @@ public class ChessClient  {
                 case "logout" -> logout();
                 case "creategame" -> createGame(params);
                 case "listgames" -> listGames(params);
-//                case "joingame" -> joingame(params);
+                case "joingame" -> joinGame(params);
 //                case "observegame" -> observeGame(params);
                 case "quit" -> "quit";
                 default -> unrecognizedCmd();
@@ -168,7 +168,7 @@ public class ChessClient  {
             for (GameData gameData : gameList) {
                 stringList.append(String.format("%d. Name: %s, Black Player: %s, White Player: %s\n", i, gameData.gameName(),
                         gameData.blackUsername(), gameData.whiteUsername()));
-                numberToId.put(i, gameData.gameID());
+                numberToId.put(String.valueOf(i), String.valueOf(gameData.gameID()));
                 i++;
             }
             return stringList.toString();
@@ -179,23 +179,19 @@ public class ChessClient  {
     public String joinGame(String... params) throws ResponseException {
         assertLoggedIn();
         if (params.length == 2) {
-            int gameNumber = Integer.parseInt(params[0]);
+            String gameNumber = params[0];
             String playerColor = params[1].toUpperCase();
             List<GameData> gameList = new ArrayList<>(server.listGames(authToken).games());
-            int currentGameID;
+            String currentGameID;
             for (GameData gameData : gameList) {
-                currentGameID = gameData.gameID();
-                if (currentGameID == gameNumber) {
-                    GameJoinRequest gameJoinRequest = new GameJoinRequest(playerColor, currentGameID, authToken);
+                currentGameID = String.valueOf(gameData.gameID());
+                if (currentGameID.equals(numberToId.get(gameNumber))) {
+                    GameJoinRequest gameJoinRequest = new GameJoinRequest(playerColor, Integer.parseInt(currentGameID), authToken);
                     server.joinGame(gameJoinRequest);
+                    // print out board with respect to the playercolor
                     return String.format("Successfully joined the game.");
                 }
-                stringList.append(String.format("%d. Name: %s, Black Player: %s, White Player: %s\n", i, gameData.gameName(),
-                        gameData.blackUsername(), gameData.whiteUsername()));
-
-                i++;
             }
-            return stringList.toString();
         }
         throw new ResponseException("Expected: no additional parameters");
     }
