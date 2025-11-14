@@ -163,6 +163,7 @@ public class ChessClient  {
         assertLoggedIn();
         if (params.length == 0) {
             List<GameData> gameList = new ArrayList<>(server.listGames(authToken).games());
+            Collections.shuffle(gameList);
             int i = 1;
             StringBuilder stringList = new StringBuilder();
             for (GameData gameData : gameList) {
