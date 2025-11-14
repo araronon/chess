@@ -1,11 +1,13 @@
 
 import java.util.*;
 
+import chess.*;
 import com.google.gson.Gson;
 import model.*;
 import server.ResponseException;
 import server.ServerFacade;
 import service.*;
+import ui.EscapeSequences;
 
 
 import static ui.EscapeSequences.*;
@@ -71,7 +73,7 @@ public class ChessClient  {
                 case "creategame" -> createGame(params);
                 case "listgames" -> listGames(params);
                 case "joingame" -> joinGame(params);
-//                case "observegame" -> observeGame(params);
+                case "observegame" -> observeGame(params);
                 case "quit" -> "quit";
                 default -> unrecognizedCmd();
             };
@@ -196,90 +198,34 @@ public class ChessClient  {
         }
         throw new ResponseException("Expected: no additional parameters");
     }
-//
-//    public String rescuePet(String... params) throws ResponseException {
-//        assertSignedIn();
-//        if (params.length >= 2) {
-//            String name = params[0];
-//            PetType type = PetType.valueOf(params[1].toUpperCase());
-//            var pet = new Pet(0, name, type);
-//            pet = server.addPet(pet);
-//            return String.format("You rescued %s. Assigned ID: %d", pet.name(), pet.id());
-//        }
-//        throw new ResponseException(ResponseException.Code.ClientError, "Expected: <name> <CAT|DOG|FROG>");
-//    }
-//
-//    public String listPets() throws ResponseException {
-//        assertSignedIn();
-//        PetList pets = server.listPets();
-//        var result = new StringBuilder();
-//        var gson = new Gson();
-//        for (Pet pet : pets) {
-//            result.append(gson.toJson(pet)).append('\n');
-//        }
-//        return result.toString();
-//    }
-//
-//    public String adoptPet(String... params) throws ResponseException {
-//        assertSignedIn();
-//        if (params.length == 1) {
-//            try {
-//                int id = Integer.parseInt(params[0]);
-//                Pet pet = getPet(id);
-//                if (pet != null) {
-//                    server.deletePet(id);
-//                    return String.format("%s says %s", pet.name(), pet.sound());
-//                }
-//            } catch (NumberFormatException ignored) {
-//            }
-//        }
-//        throw new ResponseException(ResponseException.Code.ClientError, "Expected: <pet id>");
-//    }
-//
-//    public String adoptAllPets() throws ResponseException {
-//        assertSignedIn();
-//        var buffer = new StringBuilder();
-//        for (Pet pet : server.listPets()) {
-//            buffer.append(String.format("%s says %s%n", pet.name(), pet.sound()));
-//        }
-//
-//        server.deleteAllPets();
-//        return buffer.toString();
-//    }
-//
-//    public String signOut() throws ResponseException {
-//        assertSignedIn();
-//        ws.leavePetShop(visitorName);
-//        state = State.SIGNEDOUT;
-//        return String.format("%s left the shop", visitorName);
-//    }
-//
-//    private Pet getPet(int id) throws ResponseException {
-//        for (Pet pet : server.listPets()) {
-//            if (pet.id() == id) {
-//                return pet;
-//            }
-//        }
-//        return null;
-//    }
-//
-//    public String help() {
-//        if (state == State.SIGNEDOUT) {
-//            return """
-//                    - signIn <yourname>
-//                    - quit
-//                    """;
-//        }
-//        return """
-//                - list
-//                - adopt <pet id>
-//                - rescue <name> <CAT|DOG|FROG|FISH>
-//                - adoptAll
-//                - signOut
-//                - quit
-//                """;
-//    }
-//
+
+    public void printBoard(ChessGame game, String playerColor) {
+        ChessBoard board = game.getBoard();
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                String piece = checkPiece(board.getPiece(new ChessPosition(row, col)));
+
+                };
+            }
+        }
+    }
+
+    private String checkPiece(ChessPiece piece) {
+        // ChessPiece.TeamColor.pieceColor
+        // ChessPiece.type
+        if (piece == null) {
+            return EMPTY;
+        switch (piece.getTeamColor()) {
+            case "WHITE" -> switch (piece.getPieceType()) {
+                case ""
+            }
+            case "BLACK" -> register(params);
+        }
+
+
+
+
+    }
     private void assertLoggedIn() throws ResponseException {
         if (state == State.LOGGEDOUT) {
             throw new ResponseException("You must log in");
