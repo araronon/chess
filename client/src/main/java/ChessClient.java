@@ -17,7 +17,7 @@ public class ChessClient  {
     private ServerFacade server;
     private State state = State.LOGGEDOUT;
     private String authToken;
-    private HashMap<String, String> numberToId = new HashMap<>();
+    private HashMap<String, GameData> numberToId = new HashMap<>();
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -171,7 +171,7 @@ public class ChessClient  {
             for (GameData gameData : gameList) {
                 stringList.append(String.format("%d. Name: %s, Black Player: %s, White Player: %s\n", i, gameData.gameName(),
                         gameData.blackUsername(), gameData.whiteUsername()));
-                numberToId.put(String.valueOf(i), String.valueOf(gameData.gameID()));
+                numberToId.put(String.valueOf(i), gameData);
                 i++;
             }
             return stringList.toString();
@@ -188,10 +188,11 @@ public class ChessClient  {
             String currentGameID;
             for (GameData gameData : gameList) {
                 currentGameID = String.valueOf(gameData.gameID());
-                if (currentGameID.equals(numberToId.get(gameNumber))) {
+                if (currentGameID.equals(String.valueOf(numberToId.get(gameNumber).gameID()))) {
                     GameJoinRequest gameJoinRequest = new GameJoinRequest(playerColor, Integer.parseInt(currentGameID), authToken);
                     server.joinGame(gameJoinRequest);
                     // print out board with respect to the playercolor
+                    printBoard(numberToId.get(gameNumber).game(), playerColor);
                     return String.format("Successfully joined the game.");
                 }
             }
@@ -200,33 +201,50 @@ public class ChessClient  {
     }
 
     public void printBoard(ChessGame game, String playerColor) {
-        if (playerColor == "WHITE") {
+        if ("WHITE".equals(playerColor)) {
         }
         ChessBoard board = game.getBoard();
         String boardString = "";
-        // Draw top
-        // Draw top
-        boardString = SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + SET_TEXT_COLOR_BLACK + " a "
-                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " b "
-                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " c "
-                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " d "
-                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " e "
-                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " f "
-                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " g "
-                + SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + " h "
-                + SET_BG_COLOR_LIGHT_GREY + "   ";
-        System.out.print(boardString);
-        for (int row = 1; row < 9; row++) {
+        String background = "";
+        // Draw Top
+        boardString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " a "
+                + " b "
+                + " c "
+                + " d "
+                + " e "
+                + " f "
+                + " g "
+                + " h "
+                + "   \n";
+        for (int row = 8; row > 0; row--) {
             for (int col = 1; col < 9; col++) {
+                if (col == 1 || col == 8) {
+                    boardString = boardString + String.format(SET_BG_COLOR_WHITE + " %d ", row);
+                }
+                if ((row + col) % 2 == 0) {
+                    background = SET_BG_COLOR_BLUE;
+                } else {
+                    background = SET_BG_COLOR_LIGHT_GREY;
+                }
                 String piece = checkPiece(board.getPiece(new ChessPosition(row, col)));
-                boardString = boardString + piece;
+                boardString = boardString + background + piece;
                 };
         }
+        // Draw Bottom
+        boardString = boardString + SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " a "
+                + " b "
+                + " c "
+                + " d "
+                + " e "
+                + " f "
+                + " g "
+                + " h "
+                + "   ";
         }
 
     private String checkPiece(ChessPiece piece) {
         if (piece == null) {
-            return EMPTY;
+            return "   ";
         }
         return switch (piece.getTeamColor()) {
             case ChessGame.TeamColor.WHITE -> switch (piece.getPieceType()) {

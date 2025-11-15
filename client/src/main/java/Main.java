@@ -25,7 +25,7 @@ public class Main {
                 + " f "
                 + " g "
                 + " h "
-                + "   " + SET_BG_COLOR_DARK_GREY + WHITE_KING + "   ";
+                + "   ";
         System.out.print(boardString);
         if (args.length == 1) {
             serverUrl = args[0];
