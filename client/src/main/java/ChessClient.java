@@ -187,12 +187,16 @@ public class ChessClient  {
             String currentGameID;
             for (GameData gameData : gameList) {
                 currentGameID = String.valueOf(gameData.gameID());
+                if (numberToId.get(gameNumber) == null) {
+                    throw new ResponseException("Incorrect Input: Game identifier doesn't exist.");
+                }
                 if (currentGameID.equals(String.valueOf(numberToId.get(gameNumber).gameID()))) {
                     GameJoinRequest gameJoinRequest = new GameJoinRequest(playerColor, Integer.parseInt(currentGameID), authToken);
                     server.joinGame(gameJoinRequest);
                     printBoard(numberToId.get(gameNumber).game(), playerColor);
                     return String.format("Successfully joined the game.");
                 }
+                throw new ResponseException("Incorrect Input: Game identifier doesn't exist.");
             }
         }
         throw new ResponseException("Expected: no additional parameters");
@@ -206,6 +210,9 @@ public class ChessClient  {
             String currentGameID;
             for (GameData gameData : gameList) {
                 currentGameID = String.valueOf(gameData.gameID());
+                if (numberToId.get(gameNumber) == null) {
+                    throw new ResponseException("Incorrect Input: Game identifier doesn't exist.");
+                }
                 if (currentGameID.equals(String.valueOf(numberToId.get(gameNumber).gameID()))) {
                     printBoard(numberToId.get(gameNumber).game(), "WHITE");
                     return String.format("Observing game %s from the white perspective.", currentGameID);
@@ -258,38 +265,6 @@ public class ChessClient  {
             }
             boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row)
                     + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
-        }
-        boardString = boardString + boardLabelString;
-        System.out.print(boardString);
-    }
-
-    public void printBlackBoard(ChessGame game, String playerColor) {
-        ChessBoard board = game.getBoard();
-        String boardString = "";
-        String background = "";
-        String boardLabelString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " h "
-                + " g "
-                + " f "
-                + " e "
-                + " d "
-                + " c "
-                + " b "
-                + " a "
-                + "   " + RESET_BG_COLOR + "\n";
-        boardString = boardString + boardLabelString;
-        for (int row = 1; row < 9; row++) {
-            boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row) + RESET_BG_COLOR;
-            for (int col = 1; col < 9; col++) {
-                if ((row + col) % 2 == 0) {
-                    background = SET_BG_COLOR_DARK_GREEN;
-                } else {
-                    background = SET_BG_COLOR_LIGHT_GREY;
-                }
-                String piece = checkPiece(board.getPiece(new ChessPosition(row, col)));
-                boardString = boardString + background + piece + RESET_BG_COLOR;
-            }
-            boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row)
-                    + RESET_BG_COLOR + RESET_TEXT_COLOR + SET_TEXT_COLOR_WHITE + "\n";
         }
         boardString = boardString + boardLabelString;
         System.out.print(boardString);
