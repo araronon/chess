@@ -57,8 +57,7 @@ public class ChessClient  {
             System.out.print("\n" + "[LOGGEDIN] " + ">>> " + " ");
         }
     }
-//
-//
+
     public String eval(String input) {
         try {
             String[] tokens = input.split(" ");
@@ -73,16 +72,16 @@ public class ChessClient  {
                 case "creategame" -> createGame(params);
                 case "listgames" -> listGames(params);
                 case "joingame" -> joinGame(params);
-//                case "observegame" -> observeGame(params);
+                case "observegame" -> observeGame(params);
                 case "quit" -> "quit";
                 default -> unrecognizedCmd();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
-//        catch(Exception ex) {
-//        return "Error: " + ex.getMessage();
-//    }
+        catch(Exception ex) {
+        return "Error: " + ex.getMessage();
+    }
     }
 
     public String unrecognizedCmd() {
@@ -191,7 +190,6 @@ public class ChessClient  {
                 if (currentGameID.equals(String.valueOf(numberToId.get(gameNumber).gameID()))) {
                     GameJoinRequest gameJoinRequest = new GameJoinRequest(playerColor, Integer.parseInt(currentGameID), authToken);
                     server.joinGame(gameJoinRequest);
-                    // print out board with respect to the playercolor
                     printBoard(numberToId.get(gameNumber).game(), playerColor);
                     return String.format("Successfully joined the game.");
                 }
@@ -200,6 +198,26 @@ public class ChessClient  {
         throw new ResponseException("Expected: no additional parameters");
     }
 
+    public String observeGame(String... params) throws ResponseException {
+        assertLoggedIn();
+        if (params.length == 1) {
+            String gameNumber = params[0];
+            List<GameData> gameList = new ArrayList<>(server.listGames(authToken).games());
+            String currentGameID;
+            for (GameData gameData : gameList) {
+                currentGameID = String.valueOf(gameData.gameID());
+                if (currentGameID.equals(String.valueOf(numberToId.get(gameNumber).gameID()))) {
+                    printBoard(numberToId.get(gameNumber).game(), "WHITE");
+                    return String.format("Observing game %s from the white perspective.", currentGameID);
+                }
+            }
+        }
+        throw new ResponseException("Expected: no additional parameters");
+    }
+
+
+
+
     public void printBoard(ChessGame game, String playerColor) {
         ChessBoard board = game.getBoard();
         String boardString = "";
@@ -207,28 +225,35 @@ public class ChessClient  {
         String boardLabelString = "";
         int rowstart;
         int rowend;
+        int rowcontrol;
         if (playerColor.equals("WHITE")) {
             boardLabelString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " a "
-                    + " b " + " c " + " d " + " e " + " f " + " g " + " h " + "   " + RESET_BG_COLOR + "\n";
+                    + " b " + " c " + " d " + " e " + " f " + " g " + " h " + "   " + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
             rowstart = 8;
             rowend = 0;
+            rowcontrol = -1;
         } else {
             boardLabelString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " h "
-                    + " g " + " f " + " e " + " d " + " c " + " b " + " a " + "   " + RESET_BG_COLOR + "\n";
+                    + " g " + " f " + " e " + " d " + " c " + " b " + " a " + "   " + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
             rowstart = 1;
             rowend = 9;
+            rowcontrol = 1;
         }
 
         boardString = boardString + boardLabelString;
-        for (int row = rowstart; row > rowend; row--) {
+        int displaycol = 0;
+        for (int row = rowstart; (rowcontrol > 0 ? row < rowend : row > rowend); row += rowcontrol) {
             boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row) + RESET_BG_COLOR;
             for (int col = 1; col < 9; col++) {
-                if ((row + col) % 2 == 0) {
+                if (playerColor.equals("BLACK")) {
+                    displaycol = 9 - col;
+                } else {displaycol = col;}
+                if ((row + displaycol) % 2 == 0) {
                     background = SET_BG_COLOR_DARK_GREEN;
                 } else {
                     background = SET_BG_COLOR_LIGHT_GREY;
                 }
-                String piece = checkPiece(board.getPiece(new ChessPosition(row, col)));
+                String piece = checkPiece(board.getPiece(new ChessPosition(row, displaycol)));
                 boardString = boardString + background + piece + RESET_BG_COLOR;
             }
             boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row)
@@ -264,7 +289,7 @@ public class ChessClient  {
                 boardString = boardString + background + piece + RESET_BG_COLOR;
             }
             boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row)
-                    + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
+                    + RESET_BG_COLOR + RESET_TEXT_COLOR + SET_TEXT_COLOR_WHITE + "\n";
         }
         boardString = boardString + boardLabelString;
         System.out.print(boardString);
