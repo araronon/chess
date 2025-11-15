@@ -187,8 +187,8 @@ public class ChessClient  {
                     printBoard(numberToId.get(gameNumber).game(), playerColor);
                     return String.format("Successfully joined the game.");
                 }
-                throw new ResponseException("Incorrect Input: Game identifier doesn't exist.");
             }
+            throw new ResponseException("Incorrect Input: Game identifier doesn't exist.");
         }
         throw new ResponseException("Expected: no additional parameters");
     }
@@ -209,6 +209,7 @@ public class ChessClient  {
                     return String.format("Observing game %s from the white perspective.", gameNumber);
                 }
             }
+            throw new ResponseException("Incorrect Input: Game identifier doesn't exist.");
         }
         throw new ResponseException("Expected: no additional parameters");
     }
