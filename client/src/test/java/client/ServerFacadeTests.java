@@ -168,7 +168,7 @@ public class ServerFacadeTests {
     @Order(11)
     @DisplayName("Positive - Join Game")
     public void successfulJoinGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException,
-            DataAccessException, ResponseException {
+             DataAccessException, ResponseException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = serverFacade.register(registerRequestTest);
         serverFacade.logout(registerResultTest.authToken());
