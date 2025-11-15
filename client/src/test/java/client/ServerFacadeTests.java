@@ -108,7 +108,8 @@ public class ServerFacadeTests {
     @Test
     @Order(7)
     @DisplayName("Positive - Create Game")
-    public void successfulCreateGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException, ResponseException {
+    public void successfulCreateGame() throws BadRequestException, AlreadyTakenException,
+            UnauthorizedException, DataAccessException, ResponseException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = serverFacade.register(registerRequestTest);
         serverFacade.logout(registerResultTest.authToken());
@@ -135,7 +136,8 @@ public class ServerFacadeTests {
     @Test
     @Order(9)
     @DisplayName("Positive - List Game")
-    public void successfulListGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException, ResponseException {
+    public void successfulListGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException,
+            DataAccessException, ResponseException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = serverFacade.register(registerRequestTest);
         serverFacade.logout(registerResultTest.authToken());
@@ -165,7 +167,8 @@ public class ServerFacadeTests {
     @Test
     @Order(11)
     @DisplayName("Positive - Join Game")
-    public void successfulJoinGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException, ResponseException {
+    public void successfulJoinGame() throws BadRequestException, AlreadyTakenException, UnauthorizedException,
+            DataAccessException, ResponseException {
         RegisterRequest registerRequestTest = new RegisterRequest(TEST_USER, TEST_PASSWORD, TEST_EMAIL);
         RegisterResult registerResultTest = serverFacade.register(registerRequestTest);
         serverFacade.logout(registerResultTest.authToken());

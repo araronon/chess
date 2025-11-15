@@ -41,12 +41,6 @@ public class ChessClient  {
         System.out.println();
     }
 
-
-//    public void notify(Notification notification) {
-//        System.out.println(RED + notification.message());
-//        printPrompt();
-//    }
-//
     private void printPrompt() {
         if (state == State.LOGGEDOUT) {
             System.out.print("\n" + "[LOGGEDOUT] " + ">>> " + " ");
