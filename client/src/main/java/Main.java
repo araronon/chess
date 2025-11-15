@@ -1,9 +1,6 @@
-import chess.*;
-import server.ResponseException;
+import client.ResponseException;
 import server.Server;
-import server.ServerFacade;
-
-import static ui.EscapeSequences.*;
+import client.ServerFacade;
 // Testing
 
 public class Main {

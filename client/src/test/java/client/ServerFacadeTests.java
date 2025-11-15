@@ -6,15 +6,12 @@ import dataaccess.DataAccessException;
 import dataaccess.UnauthorizedException;
 import model.GameData;
 import org.junit.jupiter.api.*;
-import server.ResponseException;
 import server.Server;
-import server.ServerFacade;
 import service.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 
 public class ServerFacadeTests {

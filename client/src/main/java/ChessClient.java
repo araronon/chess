@@ -2,12 +2,10 @@
 import java.util.*;
 
 import chess.*;
-import com.google.gson.Gson;
 import model.*;
-import server.ResponseException;
-import server.ServerFacade;
+import client.ResponseException;
+import client.ServerFacade;
 import service.*;
-import ui.EscapeSequences;
 
 
 import static ui.EscapeSequences.*;
