@@ -1,9 +1,6 @@
-package service;
-
-import model.GameData;
+package model;
 
 import java.util.Collection;
-import java.util.Map;
 
 public record GameList(Collection<GameData> games) {
 }

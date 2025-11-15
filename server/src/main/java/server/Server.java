@@ -4,6 +4,10 @@ import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import com.google.gson.Gson;
+import model.GameJoinRequest;
+import model.GameRequest;
+import model.LoginRequest;
+import model.RegisterRequest;
 import service.*;
 
 public class Server {

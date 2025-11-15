@@ -4,10 +4,9 @@ import dataaccess.AlreadyTakenException;
 import dataaccess.BadRequestException;
 import dataaccess.DataAccessException;
 import dataaccess.UnauthorizedException;
-import model.GameData;
+import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
-import service.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

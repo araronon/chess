@@ -5,7 +5,6 @@ import chess.*;
 import model.*;
 import client.ResponseException;
 import client.ServerFacade;
-import service.*;
 
 
 import static ui.EscapeSequences.*;

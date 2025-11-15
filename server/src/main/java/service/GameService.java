@@ -2,11 +2,8 @@ package service;
 import dataaccess.*;
 import model.*;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class GameService {
