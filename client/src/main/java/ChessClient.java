@@ -201,46 +201,74 @@ public class ChessClient  {
     }
 
     public void printBoard(ChessGame game, String playerColor) {
-        if ("WHITE".equals(playerColor)) {
-        }
         ChessBoard board = game.getBoard();
         String boardString = "";
         String background = "";
-        // Draw Top
-        boardString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " a "
-                + " b "
-                + " c "
-                + " d "
-                + " e "
-                + " f "
-                + " g "
-                + " h "
-                + "   \n";
-        for (int row = 8; row > 0; row--) {
+        String boardLabelString = "";
+        int rowstart;
+        int rowend;
+        if (playerColor.equals("WHITE")) {
+            boardLabelString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " a "
+                    + " b " + " c " + " d " + " e " + " f " + " g " + " h " + "   " + RESET_BG_COLOR + "\n";
+            rowstart = 8;
+            rowend = 0;
+        } else {
+            boardLabelString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " h "
+                    + " g " + " f " + " e " + " d " + " c " + " b " + " a " + "   " + RESET_BG_COLOR + "\n";
+            rowstart = 1;
+            rowend = 9;
+        }
+
+        boardString = boardString + boardLabelString;
+        for (int row = rowstart; row > rowend; row--) {
+            boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row) + RESET_BG_COLOR;
             for (int col = 1; col < 9; col++) {
-                if (col == 1 || col == 8) {
-                    boardString = boardString + String.format(SET_BG_COLOR_WHITE + " %d ", row);
-                }
                 if ((row + col) % 2 == 0) {
-                    background = SET_BG_COLOR_BLUE;
+                    background = SET_BG_COLOR_DARK_GREEN;
                 } else {
                     background = SET_BG_COLOR_LIGHT_GREY;
                 }
                 String piece = checkPiece(board.getPiece(new ChessPosition(row, col)));
-                boardString = boardString + background + piece;
-                };
+                boardString = boardString + background + piece + RESET_BG_COLOR;
+            }
+            boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row)
+                    + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
         }
-        // Draw Bottom
-        boardString = boardString + SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " a "
-                + " b "
-                + " c "
-                + " d "
-                + " e "
-                + " f "
+        boardString = boardString + boardLabelString;
+        System.out.print(boardString);
+    }
+
+    public void printBlackBoard(ChessGame game, String playerColor) {
+        ChessBoard board = game.getBoard();
+        String boardString = "";
+        String background = "";
+        String boardLabelString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " h "
                 + " g "
-                + " h "
-                + "   ";
+                + " f "
+                + " e "
+                + " d "
+                + " c "
+                + " b "
+                + " a "
+                + "   " + RESET_BG_COLOR + "\n";
+        boardString = boardString + boardLabelString;
+        for (int row = 1; row < 9; row++) {
+            boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row) + RESET_BG_COLOR;
+            for (int col = 1; col < 9; col++) {
+                if ((row + col) % 2 == 0) {
+                    background = SET_BG_COLOR_DARK_GREEN;
+                } else {
+                    background = SET_BG_COLOR_LIGHT_GREY;
+                }
+                String piece = checkPiece(board.getPiece(new ChessPosition(row, col)));
+                boardString = boardString + background + piece + RESET_BG_COLOR;
+            }
+            boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row)
+                    + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
         }
+        boardString = boardString + boardLabelString;
+        System.out.print(boardString);
+    }
 
     private String checkPiece(ChessPiece piece) {
         if (piece == null) {

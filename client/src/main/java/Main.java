@@ -4,7 +4,6 @@ import server.Server;
 import server.ServerFacade;
 
 import static ui.EscapeSequences.*;
-import static ui.EscapeSequences.EMPTY;
 // Testing
 
 public class Main {
@@ -16,17 +15,6 @@ public class Main {
 //        String serverUrl = "http://localhost:8080/";
         ServerFacade serverFacade = new ServerFacade(serverUrl);
         serverFacade.clear();
-        String boardString = "";
-        boardString = SET_BG_COLOR_WHITE + "   " +  SET_BG_COLOR_WHITE + SET_TEXT_COLOR_BLACK + " a "
-                + " b "
-                + " c "
-                + " d "
-                + " e "
-                + " f "
-                + " g "
-                + " h "
-                + "   ";
-        System.out.print(boardString);
         if (args.length == 1) {
             serverUrl = args[0];
         }
