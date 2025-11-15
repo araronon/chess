@@ -1,5 +1,5 @@
 package client;
-
+// Chess
 import dataaccess.AlreadyTakenException;
 import dataaccess.BadRequestException;
 import dataaccess.DataAccessException;
