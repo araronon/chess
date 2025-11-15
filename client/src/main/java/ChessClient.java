@@ -206,7 +206,7 @@ public class ChessClient  {
                 }
                 if (currentGameID.equals(String.valueOf(numberToId.get(gameNumber).gameID()))) {
                     printBoard(numberToId.get(gameNumber).game(), "WHITE");
-                    return String.format("Observing game %s from the white perspective.", currentGameID);
+                    return String.format("Observing game %s from the white perspective.", gameNumber);
                 }
             }
         }
