@@ -38,6 +38,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
+//    public void handleMessage(@NotNull WsMessageContext wsMessageContext) throws Exception {
+//        int gameId = -1;
+//        Session session = wsMessageContext.session;
+//        // user game command super class and makemovecommand sub. Need to deserialize twice.
+//        try {
+//            UserGameCommand command = Serializer.fromJson(
+//                    wsMessageContext.message(), UserGameCommand.class);
+//            gameId = command.getGameID();
+//            String username = getUsername(command.getAuthString());
+//            saveSession(gameId, session); // put the session in the gameID map of sessions
+//
+//            switch (command.getCommandType()) { // check if makemove or usergamecommand
+//                case CONNECT -> connect(session, username, (ConnectCommand) command);
+//                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
+//                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
+//                case RESIGN -> resign(session, username, (ResignCommand) command);
+//            }
+//        } catch (UnauthorizedException ex) {
+//            sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//            sendMessage(session, gameId, new ErrorMessage("Error: " + ex.getMessage()));
+//        }
+//    }
+
+
 
 
     @Override
