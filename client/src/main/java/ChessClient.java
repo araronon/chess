@@ -2,23 +2,37 @@
 import java.util.*;
 
 import chess.*;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
 import model.*;
 import client.ResponseException;
 import client.ServerFacade;
+import websocket.messages.ServerMessage;
 
 
 import static ui.EscapeSequences.*;
 
-public class ChessClient  {
+public class ChessClient implements NotificationHandler {
     private String visitorName = null;
     private ServerFacade server;
+    private WebSocketFacade wsserver;
     private State state = State.LOGGEDOUT;
     private String authToken;
     private HashMap<String, GameData> numberToId = new HashMap<>();
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
+        wsserver = new WebSocketFacade(serverUrl, this);
     }
+
+        @Override
+        public void notify(ServerMessage message) {
+            switch (message.getServerMessageType()) {
+                case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
+                case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
+                case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+            }
+        }
 
     public void run() {
         System.out.println(" Welcome to chess. Sign in to start.");

@@ -6,6 +6,8 @@ import webSocketMessages.Action;
 import webSocketMessages.Notification;
 
 import jakarta.websocket.*;
+import websocket.messages.ServerMessage;
+import client.ResponseException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -39,13 +41,18 @@ public class WebSocketFacade extends Endpoint {
             //set message handler
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
+                // ServerMessage is Notification
+                // Action is UserGameCommand
                 public void onMessage(String message) {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
-                    notificationHandler.notify(notification);
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    notificationHandler.notify(serverMessage);
                 }
             });
+//        } catch (Exception ex) {
+//            throw new Exception("Exception Message in WebSocketFacade");
+//        }
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new ResponseException("WebSocketFacade Exception");
         }
     }
 
