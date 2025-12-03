@@ -7,6 +7,7 @@ import client.websocket.WebSocketFacade;
 import model.*;
 import client.ResponseException;
 import client.ServerFacade;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 
@@ -78,6 +79,12 @@ public class ChessClient implements NotificationHandler {
                 case "listgames" -> listGames(params);
                 case "joingame" -> joinGame(params);
                 case "observegame" -> observeGame(params);
+                // implement in gameplay
+//                case "redraw" -> redrawBoard();
+//                case "leave" -> leaveGame();
+//                case "makemove" -> makeMove(params);
+//                case "resign" -> resign();
+//                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
                 default -> unrecognizedCmd();
             };
@@ -88,6 +95,7 @@ public class ChessClient implements NotificationHandler {
         return "Error: " + ex.getMessage();
     }
     }
+
 
     public String unrecognizedCmd() {
         return """
@@ -198,6 +206,8 @@ public class ChessClient implements NotificationHandler {
                 if (currentGameID.equals(String.valueOf(numberToId.get(gameNumber).gameID()))) {
                     GameJoinRequest gameJoinRequest = new GameJoinRequest(playerColor, Integer.parseInt(currentGameID), authToken);
                     server.joinGame(gameJoinRequest);
+                    UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameJoinRequest.gameID());
+                    wsserver.joinGame(visitorName, authToken, gameJoinRequest.gameID());
                     printBoard(numberToId.get(gameNumber).game(), playerColor);
                     return String.format("Successfully joined the game.");
                 }

@@ -57,22 +57,31 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterPetShop(String visitorName) throws ResponseException {
+    public void joinGame(String username, String authToken, int gameID) throws ResponseException {
         try {
-            var action = new Action(Action.Type.ENTER, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+        } catch (Exception ex) {
+            throw new ResponseException(ex.getMessage());
         }
     }
 
-    public void leavePetShop(String visitorName) throws ResponseException {
-        try {
-            var action = new Action(Action.Type.EXIT, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-        }
-    }
+//    public void enterPetShop(String visitorName) throws ResponseException {
+//        try {
+//            var action = new Action(Action.Type.ENTER, visitorName);
+//            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+//        } catch (IOException ex) {
+//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+//        }
+//    }
+//
+//    public void leavePetShop(String visitorName) throws ResponseException {
+//        try {
+//            var action = new Action(Action.Type.EXIT, visitorName);
+//            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+//        } catch (IOException ex) {
+//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+//        }
+//    }
 
 }
