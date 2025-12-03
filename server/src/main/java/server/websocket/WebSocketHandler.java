@@ -1,5 +1,5 @@
 package server.websocket;
-
+import jakarta.websocket.*;
 import com.google.gson.Gson;
 import dataaccess.AuthAccess;
 import dataaccess.DataAccessException;
@@ -52,8 +52,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             saveSession(gameId, session); // put the session in the gameID map of sessions
 
             switch (command.getCommandType()) { // check if makemove or usergamecommand
-                case CONNECT -> connect(session, username, (ConnectCommand) command);
-                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
+                case CONNECT -> connect(session, username, command);
+                case MAKE_MOVE -> makeMove(session, username, wsMessageContext.message());
                 case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
                 case RESIGN -> resign(session, username, (ResignCommand) command);
             }
@@ -64,6 +64,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             sendMessage(session, gameId, new ErrorMessage("Error: " + ex.getMessage()));
         }
     }
+
+    public void send(Session session, String message) throws IOException {
+        session.getBasicRemote().sendText(message);
+    }
+
+    public void makeMove() {
+        MakeMoveCommand command = Serializer.fromJson(
+                wsMessageContext.message(), UserGameCommand.class);
+        send(command);
+    }
+    public void connect(Session session, String username, )
 
     public String getUsername(String authToken) throws DataAccessException {
         AuthData authData = authAccess.getAuth(authToken);
