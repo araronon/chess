@@ -17,7 +17,8 @@ public class ChessClient implements NotificationHandler {
     private String visitorName = null;
     private ServerFacade server;
     private WebSocketFacade wsserver;
-    private State state = State.LOGGEDOUT;
+    private State signinstate = State.LOGGEDOUT;
+    private State gamestate = State.NOTJOINEDGAME;
     private String authToken;
     private HashMap<String, GameData> numberToId = new HashMap<>();
 
@@ -57,11 +58,15 @@ public class ChessClient implements NotificationHandler {
     }
 
     private void printPrompt() {
-        if (state == State.LOGGEDOUT) {
+        if (signinstate == State.LOGGEDOUT) {
             System.out.print("\n" + "[LOGGEDOUT] " + ">>> " + " ");
-        } else {
-            System.out.print("\n" + "[LOGGEDIN] " + ">>> " + " ");
+            return;
         }
+        if (gamestate == State.JOINEDGAME) {
+            System.out.print("\n" + "[INGAME] " + ">>> " + " ");
+            return;
+        }
+        System.out.print("\n" + "[LOGGEDIN] " + ">>> " + " ");
     }
 
     public String eval(String input) {
@@ -104,13 +109,19 @@ public class ChessClient implements NotificationHandler {
     }
 
     public String help() {
-        if (state == State.LOGGEDOUT) {
+        if (signinstate == State.LOGGEDOUT) {
             return """
                     - login <yourname> <yourpassword> - logs you in
                     - register <yourname> <yourpassword> <youremail> - register an account
                     - help - get help
                     - quit - close the game
                     """;
+        } if (gamestate == State.JOINEDGAME) {
+            return """
+                - leave
+                - resign
+                - ... othercommands
+                """;
         }
         return """
                 - logout - sign out of your account
@@ -129,7 +140,7 @@ public class ChessClient implements NotificationHandler {
         if (params.length == 2) {
             LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
             LoginResult loginResult = server.login(loginRequest);
-            state = State.LOGGEDIN;
+            signinstate = State.LOGGEDIN;
             visitorName = params[0];
             authToken = loginResult.authToken();
             return String.format("You logged in as %s.", visitorName);
@@ -141,7 +152,7 @@ public class ChessClient implements NotificationHandler {
         assertLoggedIn();
         if (params.length == 0) {
             server.logout(authToken);
-            state = State.LOGGEDOUT;
+            signinstate = State.LOGGEDOUT;
             visitorName = null;
             authToken = null;
             return String.format("You logged out.");
@@ -154,7 +165,7 @@ public class ChessClient implements NotificationHandler {
         if (params.length == 3) {
             RegisterRequest registerRequest = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult registerResult = server.register(registerRequest);
-            state = State.LOGGEDIN;
+            signinstate = State.LOGGEDIN;
             visitorName = params[0];
             authToken = registerResult.authToken();
             return String.format("You logged in as %s.", visitorName);
@@ -193,6 +204,7 @@ public class ChessClient implements NotificationHandler {
 
     public String joinGame(String... params) throws ResponseException {
         assertLoggedIn();
+        assertNotJoinedGame();
         if (params.length == 2) {
             String gameNumber = params[0];
             String playerColor = params[1].toUpperCase();
@@ -206,7 +218,6 @@ public class ChessClient implements NotificationHandler {
                 if (currentGameID.equals(String.valueOf(numberToId.get(gameNumber).gameID()))) {
                     GameJoinRequest gameJoinRequest = new GameJoinRequest(playerColor, Integer.parseInt(currentGameID), authToken);
                     server.joinGame(gameJoinRequest);
-                    UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameJoinRequest.gameID());
                     wsserver.joinGame(visitorName, authToken, gameJoinRequest.gameID());
                     printBoard(numberToId.get(gameNumber).game(), playerColor);
                     return String.format("Successfully joined the game.");
@@ -311,13 +322,25 @@ public class ChessClient implements NotificationHandler {
     }
 
     private void assertLoggedIn() throws ResponseException {
-        if (state == State.LOGGEDOUT) {
+        if (signinstate == State.LOGGEDOUT) {
             throw new ResponseException("You must log in");
         }
     }
     private void assertLoggedOut() throws ResponseException {
-        if (state == State.LOGGEDIN) {
+        if (signinstate == State.LOGGEDIN) {
             throw new ResponseException("You must log out first");
+        }
+    }
+
+    private void assertNotJoinedGame() throws ResponseException {
+        if (gamestate == State.JOINEDGAME) {
+            throw new ResponseException("You've already joined a game");
+        }
+    }
+
+    private void assertJoinedGame() throws ResponseException {
+        if (gamestate == State.NOTJOINEDGAME) {
+            throw new ResponseException("You need to join a game first");
         }
     }
 }

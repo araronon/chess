@@ -1,5 +1,7 @@
 
 public enum State {
     LOGGEDOUT,
-    LOGGEDIN
+    LOGGEDIN,
+    JOINEDGAME,
+    NOTJOINEDGAME
 }

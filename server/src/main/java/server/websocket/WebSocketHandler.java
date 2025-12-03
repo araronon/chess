@@ -2,6 +2,7 @@ package server.websocket;
 
 import com.google.gson.Gson;
 import dataaccess.AuthAccess;
+import dataaccess.DataAccessException;
 import dataaccess.GameAccess;
 import dataaccess.UserAccess;
 import io.javalin.websocket.WsCloseContext;
@@ -21,8 +22,14 @@ import java.io.IOException;
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
+    private final UserAccess userAccess;
+    private final AuthAccess authAccess;
+    private final GameAccess gameAccess;
 
-    public WebSocketHandler(UserAccess userAccess, AuthAccess authAccess, GameAccess gameAccess) {
+    public WebSocketHandler(UserAccess userAccess, AuthAccess authAccess, GameAccess gameAccess, UserAccess userAccess1, AuthAccess authAccess1, GameAccess gameAccess1) {
+        this.userAccess = userAccess1;
+        this.authAccess = authAccess1;
+        this.gameAccess = gameAccess1;
     }
 
     @Override
@@ -41,7 +48,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = Serializer.fromJson(
                     wsMessageContext.message(), UserGameCommand.class);
             gameId = command.getGameID();
-            String username = getUsername(command.getAuthString());
+            String username = getUsername(command.getAuthToken());
             saveSession(gameId, session); // put the session in the gameID map of sessions
 
             switch (command.getCommandType()) { // check if makemove or usergamecommand
@@ -58,8 +65,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    public String getUsername(String authToken) {
-        AuthData authData = authAccess.getAuth()
+    public String getUsername(String authToken) throws DataAccessException {
+        AuthData authData = authAccess.getAuth(authToken);
+        return authData.username();
     }
 
     public void saveSession(int gameID, Session session) {
