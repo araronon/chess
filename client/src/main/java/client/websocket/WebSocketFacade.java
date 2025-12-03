@@ -1,13 +1,11 @@
 package client.websocket;
 
 import com.google.gson.Gson;
-import exception.ResponseException;
-import webSocketMessages.Action;
-import webSocketMessages.Notification;
 
 import jakarta.websocket.*;
 import websocket.messages.ServerMessage;
-import client.ResponseException;
+import websocket.commands.UserGameCommand;
+import client.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -48,9 +46,7 @@ public class WebSocketFacade extends Endpoint {
                     notificationHandler.notify(serverMessage);
                 }
             });
-//        } catch (Exception ex) {
-//            throw new Exception("Exception Message in WebSocketFacade");
-//        }
+
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException("WebSocketFacade Exception");
         }

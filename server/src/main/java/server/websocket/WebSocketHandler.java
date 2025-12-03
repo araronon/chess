@@ -9,8 +9,10 @@ import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import org.eclipse.jetty.websocket.api.Session;
+import org.jetbrains.annotations.NotNull;
 import webSocketMessages.Action;
 import webSocketMessages.Notification;
+import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
 
@@ -25,48 +27,35 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
-    public void handleMessage(WsMessageContext ctx) {
+    public void handleMessage(@NotNull WsMessageContext wsMessageContext) throws Exception {
+        int gameId = -1;
+        Session session = wsMessageContext.session;
+        // user game command super class and makemovecommand sub. Need to deserialize twice.
         try {
-            Action action = new Gson().fromJson(ctx.message(), Action.class);
-            switch (action.type()) {
-                // connect, make move, leave, resign
-                case ENTER -> enter(action.visitorName(), ctx.session);
-                case EXIT -> exit(action.visitorName(), ctx.session);
+            Gson Serializer = new Gson();
+            UserGameCommand command = Serializer.fromJson(
+                    wsMessageContext.message(), UserGameCommand.class);
+            gameId = command.getGameID();
+            String username = getUsername(command.getAuthString());
+            saveSession(gameId, session); // put the session in the gameID map of sessions
+
+            switch (command.getCommandType()) { // check if makemove or usergamecommand
+                case CONNECT -> connect(session, username, (ConnectCommand) command);
+                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
+                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
+                case RESIGN -> resign(session, username, (ResignCommand) command);
             }
-        } catch (IOException ex) {
+        } catch (UnauthorizedException ex) {
+            sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
+        } catch (Exception ex) {
             ex.printStackTrace();
+            sendMessage(session, gameId, new ErrorMessage("Error: " + ex.getMessage()));
         }
     }
 
-//    public void handleMessage(@NotNull WsMessageContext wsMessageContext) throws Exception {
-//        int gameId = -1;
-//        Session session = wsMessageContext.session;
-//        // user game command super class and makemovecommand sub. Need to deserialize twice.
-//        try {
-//            UserGameCommand command = Serializer.fromJson(
-//                    wsMessageContext.message(), UserGameCommand.class);
-//            gameId = command.getGameID();
-//            String username = getUsername(command.getAuthString());
-//            saveSession(gameId, session); // put the session in the gameID map of sessions
-//
-//            switch (command.getCommandType()) { // check if makemove or usergamecommand
-//                case CONNECT -> connect(session, username, (ConnectCommand) command);
-//                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
-//                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
-//                case RESIGN -> resign(session, username, (ResignCommand) command);
-//            }
-//        } catch (UnauthorizedException ex) {
-//            sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//            sendMessage(session, gameId, new ErrorMessage("Error: " + ex.getMessage()));
-//        }
-//    }
-
-
-
-
-    @Override
+    public void saveSession(int gameID, Session session) {
+        connections.add(gameID, session);
+    }
     public void handleClose(WsCloseContext ctx) {
         System.out.println("Websocket closed");
     }
