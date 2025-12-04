@@ -1,4 +1,5 @@
 package server.websocket;
+import chess.ChessGame;
 import jakarta.websocket.*;
 import com.google.gson.Gson;
 import dataaccess.AuthAccess;
@@ -12,6 +13,7 @@ import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.UserGameCommand;
@@ -74,7 +76,22 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 wsMessageContext.message(), UserGameCommand.class);
         send(command);
     }
-    public void connect(Session session, String username, )
+    public void connect(Session session, String username, UserGameCommand command) throws DataAccessException {
+        int gameID = command.getGameID();
+        GameData gameData = gameAccess.getGame(gameID);
+        String playerColor;
+        if (username.equals(gameData.whiteUsername())) {
+            playerColor = "WHITE";
+        } else {
+            playerColor = "BLACK";
+        }
+        var message = String.format("%s joined the game as %s", username, playerColor);
+        var notification = new ServerMessage(ServerMessage.Type., message);
+        connections.broadcast(session, notification);
+        connections.remove(session);
+
+
+    }
 
     public String getUsername(String authToken) throws DataAccessException {
         AuthData authData = authAccess.getAuth(authToken);
