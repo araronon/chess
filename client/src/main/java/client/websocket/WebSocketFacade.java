@@ -30,7 +30,7 @@ public class WebSocketFacade extends Endpoint {
     public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
         try {
             url = url.replace("http", "ws");
-            URI socketURI = new URI(url + "/ws");
+            URI socketURI = new URI(url + "ws");
             this.notificationHandler = notificationHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -48,7 +48,7 @@ public class WebSocketFacade extends Endpoint {
             });
 
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new ResponseException("WebSocketFacade Exception");
+            throw new ResponseException("WebSocketFacade Exception: " + ex.getMessage());
         }
     }
 
