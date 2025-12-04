@@ -96,7 +96,7 @@ public class ChessClient implements NotificationHandler {
                 // implement in gameplay
 //                case "redraw" -> redrawBoard();
                 case "leave" -> leaveGame();
-//                case "makemove" -> makeMove(params);
+                case "makemove" -> makeMove(params);
 //                case "resign" -> resign();
 //                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
@@ -140,6 +140,29 @@ public class ChessClient implements NotificationHandler {
                 - joingame <gameID> <WHITE|BLACK> - join a chess game
                 - quit
                 """;
+    }
+
+    public String makeMove(String ... params) throws ResponseException {
+        assertLoggedIn();
+        assertJoinedGame();
+        if (params.length == 2) {
+            String startcommand = params[0].toUpperCase();
+            String endcommand = params[1].toUpperCase();
+            if (startcommand.length() != 2 || endcommand.length() != 2) {
+                throw new ResponseException("Invalid arguments for moves. Need a1 b1 format.");
+            }
+            char firststart = startcommand[0].charAt(0);
+            char secondstart = startcommand[1].charAt(0);
+            char firstend = endcommand[0].charAt(0);
+            char secondend = endcommand[1].charAt(0);
+            if (!("A" <= firststart <= "H") || !("A" <= firstend <= "H") || !("1" <= firststart <= "8") || !("1" <= firstend <= "8"))
+            LoginResult loginResult = server.login(loginRequest);
+            signinstate = State.LOGGEDIN;
+            visitorName = params[0];
+            authToken = loginResult.authToken();
+            return String.format("You logged in as %s.", visitorName);
+        }
+        throw new ResponseException("Expected: <yourname> <yourpassword>");
     }
 
     public String leaveGame(String ... params) throws ResponseException {
