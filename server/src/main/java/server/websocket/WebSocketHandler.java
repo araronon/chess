@@ -1,11 +1,8 @@
 package server.websocket;
 import chess.ChessGame;
+import dataaccess.*;
 import jakarta.websocket.*;
 import com.google.gson.Gson;
-import dataaccess.AuthAccess;
-import dataaccess.DataAccessException;
-import dataaccess.GameAccess;
-import dataaccess.UserAccess;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
 import io.javalin.websocket.WsConnectContext;
@@ -17,6 +14,7 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -55,9 +53,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             switch (command.getCommandType()) { // check if makemove or usergamecommand
                 case CONNECT -> connect(session, username, command);
-                case MAKE_MOVE -> makeMove(session, username, wsMessageContext.message());
-                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
-                case RESIGN -> resign(session, username, (ResignCommand) command);
+//                case MAKE_MOVE -> makeMove(session, username, wsMessageContext.message());
+//                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
+//                case RESIGN -> resign(session, username, (ResignCommand) command);
             }
         } catch (UnauthorizedException ex) {
             sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
@@ -67,16 +65,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    public void send(Session session, String message) throws IOException {
+    public void sendMessage(Session session, int GameID, String message) throws IOException {
         session.getBasicRemote().sendText(message);
     }
 
-    public void makeMove() {
-        MakeMoveCommand command = Serializer.fromJson(
-                wsMessageContext.message(), UserGameCommand.class);
-        send(command);
-    }
-    public void connect(Session session, String username, UserGameCommand command) throws DataAccessException {
+    public void connect(Session session, String username, UserGameCommand command) throws DataAccessException, IOException {
         int gameID = command.getGameID();
         GameData gameData = gameAccess.getGame(gameID);
         String playerColor;
@@ -86,11 +79,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             playerColor = "BLACK";
         }
         var message = String.format("%s joined the game as %s", username, playerColor);
-        var notification = new ServerMessage(ServerMessage.Type., message);
-        connections.broadcast(session, notification);
-        connections.remove(session);
-
-
+        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(session, notification, gameID);
     }
 
     public String getUsername(String authToken) throws DataAccessException {
@@ -104,6 +94,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void handleClose(WsCloseContext ctx) {
         System.out.println("Websocket closed");
     }
+
+    //
+//    public void makeMove() {
+//        MakeMoveCommand command = Serializer.fromJson(
+//                wsMessageContext.message(), UserGameCommand.class);
+//        send(command);
+//    }
 
 //    private void enter(String visitorName, Session session) throws IOException {
 //        connections.add(session);
