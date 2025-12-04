@@ -149,18 +149,24 @@ public class ChessClient implements NotificationHandler {
             String startcommand = params[0].toUpperCase();
             String endcommand = params[1].toUpperCase();
             if (startcommand.length() != 2 || endcommand.length() != 2) {
+                throw new ResponseException("Invalid argument command length for moves. Need a1 b1 format.");
+            }
+            char colstart = startcommand.charAt(0);
+            char rowstart = startcommand.charAt(1);
+            char colend = endcommand.charAt(0);
+            char rowend = endcommand.charAt(1);
+            if (colstart < 'A' || colstart > 'H' ||
+                    colend < 'A'   || colend > 'H'   ||
+                    rowstart < '1'|| rowstart > '8'||
+                    rowend < '1'  || rowend > '8') {
                 throw new ResponseException("Invalid arguments for moves. Need a1 b1 format.");
             }
-            char firststart = startcommand[0].charAt(0);
-            char secondstart = startcommand[1].charAt(0);
-            char firstend = endcommand[0].charAt(0);
-            char secondend = endcommand[1].charAt(0);
-            if (!("A" <= firststart <= "H") || !("A" <= firstend <= "H") || !("1" <= firststart <= "8") || !("1" <= firstend <= "8"))
-            LoginResult loginResult = server.login(loginRequest);
-            signinstate = State.LOGGEDIN;
-            visitorName = params[0];
-            authToken = loginResult.authToken();
-            return String.format("You logged in as %s.", visitorName);
+            int cols = colstart - 'A' + 1;
+            int rows = rowstart - '0';
+            int cole = colend - 'A' + 1;
+            int rowe = rowend - '0';
+            wsserver.makeMove(cols, rows, cole, rowe, globalGameID);
+            return String.format("Successfully made the move from ")
         }
         throw new ResponseException("Expected: <yourname> <yourpassword>");
     }
