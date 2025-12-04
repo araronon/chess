@@ -3,6 +3,7 @@ package client.websocket;
 import com.google.gson.Gson;
 
 import jakarta.websocket.*;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 import websocket.commands.UserGameCommand;
 import client.*;
@@ -43,7 +44,12 @@ public class WebSocketFacade extends Endpoint {
                 // Action is UserGameCommand
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+//                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+//                        NotificationMessage msg = new Gson().fromJson(message, NotificationMessage.class);
+//                        notificationHandler.notify(msg);
+//                    }
                     notificationHandler.notify(serverMessage);
+
                 }
             });
 

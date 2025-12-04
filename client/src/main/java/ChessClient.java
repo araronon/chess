@@ -8,6 +8,7 @@ import model.*;
 import client.ResponseException;
 import client.ServerFacade;
 import websocket.commands.UserGameCommand;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 
@@ -30,14 +31,14 @@ public class ChessClient implements NotificationHandler {
     @Override
     public void notify(ServerMessage message) {
         switch (message.getServerMessageType()) {
-            case NOTIFICATION -> displayNotification(((ServerMessage) message).getMessage());
+            case NOTIFICATION -> displayNotification(((NotificationMessage) message));
 //                case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
 //                case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
         }
     }
 
-    public void displayNotification(String message) {
-        System.out.println(message);
+    public void displayNotification(NotificationMessage message) {
+        System.out.println(message.getMessage());
     }
 
     public void run() {

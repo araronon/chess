@@ -1,6 +1,8 @@
 package server.websocket;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -27,7 +29,8 @@ public class ConnectionManager {
     }
 
     public void broadcast(Session excludeSession, ServerMessage serverMessage, int gameID) throws IOException {
-        String msg = serverMessage.toString();
+        Gson Serializer = new Gson();
+        String msg = Serializer.toJson(serverMessage);
         Set<Session> sessions = connections.get(gameID);
         for (Session c : sessions) {
             if (c.isOpen()) {

@@ -15,6 +15,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -63,7 +64,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 //        }
         catch (Exception ex) {
             ex.printStackTrace();
-            sendMessage(session, gameId, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,"Error: unauthorized"));
+            sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
         }
     }
 
@@ -77,11 +78,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String playerColor;
         if (username.equals(gameData.whiteUsername())) {
             playerColor = "WHITE";
-        } else {
+        } else if (username.equals(gameData.blackUsername())) {
             playerColor = "BLACK";
+        } else {
+            playerColor = "OBSERVER";
         }
         var message = String.format("%s joined the game as %s", username, playerColor);
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        var notification = new NotificationMessage(message);
         connections.broadcast(session, notification, gameID);
     }
 
