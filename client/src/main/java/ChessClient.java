@@ -20,8 +20,11 @@ public class ChessClient implements NotificationHandler {
     private WebSocketFacade wsserver;
     private State signinstate = State.LOGGEDOUT;
     private State gamestate = State.NOTJOINEDGAME;
+    private State observedstate = State.NOTOBSERVINGGAME;
     private String authToken;
+    private int globalGameID;
     private HashMap<String, GameData> numberToId = new HashMap<>();
+    private boolean redrawflag = false;
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -92,7 +95,7 @@ public class ChessClient implements NotificationHandler {
                 case "observegame" -> observeGame(params);
                 // implement in gameplay
 //                case "redraw" -> redrawBoard();
-//                case "leave" -> leaveGame();
+                case "leave" -> leaveGame();
 //                case "makemove" -> makeMove(params);
 //                case "resign" -> resign();
 //                case "highlight" -> highlight(params);
@@ -139,7 +142,14 @@ public class ChessClient implements NotificationHandler {
                 """;
     }
 
-
+    public String leaveGame(String ... params) throws ResponseException {
+        assertLoggedIn();
+        assertInGamePlay();
+        gamestate = State.NOTJOINEDGAME;
+        observedstate = State.NOTOBSERVINGGAME;
+        wsserver.leaveGame(visitorName, authToken, globalGameID);
+        return String.format("Successfully left the game");
+    }
 
     public String login(String... params) throws ResponseException {
         assertLoggedOut();
@@ -227,6 +237,7 @@ public class ChessClient implements NotificationHandler {
                     server.joinGame(gameJoinRequest);
                     wsserver.joinGame(visitorName, authToken, gameJoinRequest.gameID());
                     gamestate = State.JOINEDGAME;
+                    globalGameID = gameData.gameID();
                     printBoard(numberToId.get(gameNumber).game(), playerColor);
                     return String.format("Successfully joined the game.");
                 }
@@ -238,6 +249,8 @@ public class ChessClient implements NotificationHandler {
 
     public String observeGame(String... params) throws ResponseException {
         assertLoggedIn();
+        assertNotJoinedGame();
+        assertNotObservingGame();
         if (params.length == 1) {
             String gameNumber = params[0];
             List<GameData> gameList = new ArrayList<>(server.listGames(authToken).games());
@@ -248,6 +261,9 @@ public class ChessClient implements NotificationHandler {
                     throw new ResponseException("Incorrect Input: Game identifier doesn't exist.");
                 }
                 if (currentGameID.equals(String.valueOf(numberToId.get(gameNumber).gameID()))) {
+                    wsserver.joinGame(visitorName, authToken, gameData.gameID());
+                    observedstate = State.OBSERVINGGAME;
+                    globalGameID = gameData.gameID();
                     printBoard(numberToId.get(gameNumber).game(), "WHITE");
                     return String.format("Observing game %s from the white perspective.", gameNumber);
                 }
@@ -351,4 +367,24 @@ public class ChessClient implements NotificationHandler {
             throw new ResponseException("You need to join a game first");
         }
     }
+
+    private void assertNotObservingGame() throws ResponseException {
+        if (observedstate == State.OBSERVINGGAME) {
+            throw new ResponseException("You're already observing a game");
+        }
+    }
+
+    private void assertObservingGame() throws ResponseException {
+        if (observedstate == State.NOTOBSERVINGGAME) {
+            throw new ResponseException("You need to be observing a game first");
+        }
+    }
+
+    private void assertInGamePlay() throws ResponseException {
+        if ((observedstate == State.NOTOBSERVINGGAME) && (gamestate == State.NOTJOINEDGAME)) {
+            throw new ResponseException("To leave a game you need to be participating in a game");
+        }
+    }
+
+
 }
