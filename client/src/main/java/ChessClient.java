@@ -38,7 +38,8 @@ public class ChessClient implements NotificationHandler {
     }
 
     public void displayNotification(NotificationMessage message) {
-        System.out.println(message.getMessage());
+        System.out.println("\n" + message.getMessage() + "\n");
+//        printPrompt();
     }
 
     public void run() {
