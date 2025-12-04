@@ -27,14 +27,18 @@ public class ChessClient implements NotificationHandler {
         wsserver = new WebSocketFacade(serverUrl, this);
     }
 
-        @Override
-        public void notify(ServerMessage message) {
-            switch (message.getServerMessageType()) {
-                case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
-                case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
-                case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
-            }
+    @Override
+    public void notify(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case NOTIFICATION -> displayNotification(((ServerMessage) message).getMessage());
+//                case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
+//                case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
         }
+    }
+
+    public void displayNotification(String message) {
+        System.out.println(message);
+    }
 
     public void run() {
         System.out.println(" Welcome to chess. Sign in to start.");

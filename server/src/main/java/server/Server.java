@@ -44,8 +44,10 @@ public class Server {
                 ctx.enableAutomaticPings();
                 System.out.println("Websocket connected");
             });
+//            ws.onConnect(webSocketHandler);
             ws.onMessage(webSocketHandler);
             ws.onClose(_ -> System.out.println("Websocket closed"));
+//            ws.onClose(webSocketHandler);
         });
         javalin.post("session", this::login);
         javalin.delete("db", this::clear);

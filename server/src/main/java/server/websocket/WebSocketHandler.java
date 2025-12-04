@@ -26,10 +26,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private final AuthAccess authAccess;
     private final GameAccess gameAccess;
 
-    public WebSocketHandler(UserAccess userAccess, AuthAccess authAccess, GameAccess gameAccess, UserAccess userAccess1, AuthAccess authAccess1, GameAccess gameAccess1) {
-        this.userAccess = userAccess1;
-        this.authAccess = authAccess1;
-        this.gameAccess = gameAccess1;
+    public WebSocketHandler(UserAccess userAccess, AuthAccess authAccess, GameAccess gameAccess) {
+        this.userAccess = userAccess;
+        this.authAccess = authAccess;
+        this.gameAccess = gameAccess;
     }
 
     @Override
@@ -57,16 +57,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 //                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
 //                case RESIGN -> resign(session, username, (ResignCommand) command);
             }
-        } catch (UnauthorizedException ex) {
-            sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
-        } catch (Exception ex) {
+        }
+//        catch (UnauthorizedException ex) {
+//            sendMessage(session, gameId, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,"Error: unauthorized"));
+//        }
+        catch (Exception ex) {
             ex.printStackTrace();
-            sendMessage(session, gameId, new ErrorMessage("Error: " + ex.getMessage()));
+            sendMessage(session, gameId, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,"Error: unauthorized"));
         }
     }
 
-    public void sendMessage(Session session, int GameID, String message) throws IOException {
-        session.getBasicRemote().sendText(message);
+    public void sendMessage(Session session, int GameID, ServerMessage message) throws IOException {
+        session.getRemote().sendString(new Gson().toJson(message));
     }
 
     public void connect(Session session, String username, UserGameCommand command) throws DataAccessException, IOException {
