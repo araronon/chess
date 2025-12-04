@@ -13,6 +13,7 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.NotificationMessage;
@@ -43,7 +44,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void handleMessage(@NotNull WsMessageContext wsMessageContext) throws Exception {
         int gameId = -1;
         Session session = wsMessageContext.session;
-        // user game command super class and makemovecommand sub. Need to deserialize twice.
         try {
             Gson Serializer = new Gson();
             UserGameCommand command = Serializer.fromJson(
@@ -54,22 +54,37 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             switch (command.getCommandType()) { // check if makemove or usergamecommand
                 case CONNECT -> connect(session, username, command);
-//                case MAKE_MOVE -> makeMove(session, username, wsMessageContext.message());
-//                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
-//                case RESIGN -> resign(session, username, (ResignCommand) command);
+                case MAKE_MOVE -> makeMove(session, username, wsMessageContext.message());
+                case LEAVE -> leaveGame(session, username, command);
+                case RESIGN -> resign(session, username, command);
             }
         }
 //        catch (UnauthorizedException ex) {
-//            sendMessage(session, gameId, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,"Error: unauthorized"));
+//            sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
 //        }
         catch (Exception ex) {
             ex.printStackTrace();
-            sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
+            sendMessage(session, gameId, new ErrorMessage("Unknown exception in WebSocketHandler"));
         }
     }
 
     public void sendMessage(Session session, int GameID, ServerMessage message) throws IOException {
         session.getRemote().sendString(new Gson().toJson(message));
+    }
+
+    public void makeMove(Session session, String username, String message) {
+        Gson Serializer = new Gson();
+        MakeMoveCommand command = Serializer.fromJson(
+                message, MakeMoveCommand.class);
+        // more
+    }
+
+    public void leaveGame(Session session, String username, UserGameCommand command) {
+        // more
+    }
+
+    public void resign(Session session, String username, UserGameCommand command) {
+        // more
     }
 
     public void connect(Session session, String username, UserGameCommand command) throws DataAccessException, IOException {

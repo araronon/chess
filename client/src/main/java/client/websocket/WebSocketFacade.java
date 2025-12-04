@@ -44,11 +44,11 @@ public class WebSocketFacade extends Endpoint {
                 // Action is UserGameCommand
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-//                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
-//                        NotificationMessage msg = new Gson().fromJson(message, NotificationMessage.class);
-//                        notificationHandler.notify(msg);
-//                    }
-                    notificationHandler.notify(serverMessage);
+                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+                        NotificationMessage msg = new Gson().fromJson(message, NotificationMessage.class);
+                        notificationHandler.notify(msg);
+                    }
+//                    notificationHandler.notify(serverMessage);
 
                 }
             });

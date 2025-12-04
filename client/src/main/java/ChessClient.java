@@ -158,6 +158,7 @@ public class ChessClient implements NotificationHandler {
         if (params.length == 0) {
             server.logout(authToken);
             signinstate = State.LOGGEDOUT;
+            gamestate = State.NOTJOINEDGAME;
             visitorName = null;
             authToken = null;
             return String.format("You logged out.");
@@ -224,6 +225,7 @@ public class ChessClient implements NotificationHandler {
                     GameJoinRequest gameJoinRequest = new GameJoinRequest(playerColor, Integer.parseInt(currentGameID), authToken);
                     server.joinGame(gameJoinRequest);
                     wsserver.joinGame(visitorName, authToken, gameJoinRequest.gameID());
+                    gamestate = State.JOINEDGAME;
                     printBoard(numberToId.get(gameNumber).game(), playerColor);
                     return String.format("Successfully joined the game.");
                 }
