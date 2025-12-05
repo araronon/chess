@@ -23,8 +23,9 @@ public class ChessClient implements NotificationHandler {
     private State observedstate = State.NOTOBSERVINGGAME;
     private String authToken;
     private int globalGameID;
+    private ChessGame globalGame;
     private HashMap<String, GameData> numberToId = new HashMap<>();
-    private boolean redrawflag = false;
+    private String globalTeamColor;
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -96,7 +97,7 @@ public class ChessClient implements NotificationHandler {
                 // implement in gameplay
 //                case "redraw" -> redrawBoard();
                 case "leave" -> leaveGame();
-                case "makemove" -> makeMove(params);
+//                case "makemove" -> makeMove(params);
 //                case "resign" -> resign();
 //                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
@@ -142,34 +143,34 @@ public class ChessClient implements NotificationHandler {
                 """;
     }
 
-    public String makeMove(String ... params) throws ResponseException {
-        assertLoggedIn();
-        assertJoinedGame();
-        if (params.length == 2) {
-            String startcommand = params[0].toUpperCase();
-            String endcommand = params[1].toUpperCase();
-            if (startcommand.length() != 2 || endcommand.length() != 2) {
-                throw new ResponseException("Invalid argument command length for moves. Need a1 b1 format.");
-            }
-            char colstart = startcommand.charAt(0);
-            char rowstart = startcommand.charAt(1);
-            char colend = endcommand.charAt(0);
-            char rowend = endcommand.charAt(1);
-            if (colstart < 'A' || colstart > 'H' ||
-                    colend < 'A'   || colend > 'H'   ||
-                    rowstart < '1'|| rowstart > '8'||
-                    rowend < '1'  || rowend > '8') {
-                throw new ResponseException("Invalid arguments for moves. Need a1 b1 format.");
-            }
-            int cols = colstart - 'A' + 1;
-            int rows = rowstart - '0';
-            int cole = colend - 'A' + 1;
-            int rowe = rowend - '0';
-            wsserver.makeMove(cols, rows, cole, rowe, globalGameID);
-            return String.format("Successfully made the move from ")
-        }
-        throw new ResponseException("Expected: <yourname> <yourpassword>");
-    }
+//    public String makeMove(String ... params) throws ResponseException {
+//        assertLoggedIn();
+//        assertJoinedGame();
+//        if (params.length == 2) {
+//            String startcommand = params[0].toUpperCase();
+//            String endcommand = params[1].toUpperCase();
+//            if (startcommand.length() != 2 || endcommand.length() != 2) {
+//                throw new ResponseException("Invalid argument command length for moves. Need a1 b1 format.");
+//            }
+//            char colstart = startcommand.charAt(0);
+//            char rowstart = startcommand.charAt(1);
+//            char colend = endcommand.charAt(0);
+//            char rowend = endcommand.charAt(1);
+//            if (colstart < 'A' || colstart > 'H' ||
+//                    colend < 'A'   || colend > 'H'   ||
+//                    rowstart < '1'|| rowstart > '8'||
+//                    rowend < '1'  || rowend > '8') {
+//                throw new ResponseException("Invalid arguments for moves. Need a1 b1 format.");
+//            }
+//            int cols = colstart - 'A' + 1;
+//            int rows = rowstart - '0';
+//            int cole = colend - 'A' + 1;
+//            int rowe = rowend - '0';
+//            wsserver.makeMove(cols, rows, cole, rowe, globalTeamColor, globalGameID);
+//            return String.format("Successfully made the move from %s to %s", startcommand, endcommand);
+//        }
+//        throw new ResponseException("Expected: <yourname> <yourpassword>");
+//    }
 
     public String leaveGame(String ... params) throws ResponseException {
         assertLoggedIn();
@@ -264,6 +265,7 @@ public class ChessClient implements NotificationHandler {
                 if (currentGameID.equals(String.valueOf(numberToId.get(gameNumber).gameID()))) {
                     GameJoinRequest gameJoinRequest = new GameJoinRequest(playerColor, Integer.parseInt(currentGameID), authToken);
                     server.joinGame(gameJoinRequest);
+                    globalTeamColor = playerColor;
                     wsserver.joinGame(visitorName, authToken, gameJoinRequest.gameID());
                     gamestate = State.JOINEDGAME;
                     globalGameID = gameData.gameID();
