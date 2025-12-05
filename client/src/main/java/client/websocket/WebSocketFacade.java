@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 
 import jakarta.websocket.*;
 import websocket.commands.MakeMoveCommand;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 import websocket.commands.UserGameCommand;
@@ -52,7 +53,14 @@ public class WebSocketFacade extends Endpoint {
                         NotificationMessage msg = new Gson().fromJson(message, NotificationMessage.class);
                         notificationHandler.notify(msg);
                     }
-//                    notificationHandler.notify(serverMessage);
+                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+                        LoadGameMessage msg = new Gson().fromJson(message, LoadGameMessage.class);
+                        notificationHandler.notify(msg);
+                    }
+//                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+//                        ErrorMesssage msg = new Gson().fromJson(message, ErrorMessage.class);
+//                        notificationHandler.notify(msg);
+//                    }
 
                 }
             });

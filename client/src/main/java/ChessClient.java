@@ -8,6 +8,7 @@ import model.*;
 import client.ResponseException;
 import client.ServerFacade;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -26,6 +27,7 @@ public class ChessClient implements NotificationHandler {
     private ChessGame globalGame;
     private HashMap<String, GameData> numberToId = new HashMap<>();
     private String globalTeamColor;
+    private GameData globalGameData;
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -37,13 +39,26 @@ public class ChessClient implements NotificationHandler {
         switch (message.getServerMessageType()) {
             case NOTIFICATION -> displayNotification(((NotificationMessage) message));
 //                case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
-//                case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+            case LOAD_GAME -> loadGame(((LoadGameMessage) message));
         }
     }
 
     public void displayNotification(NotificationMessage message) {
         System.out.println("\n" + message.getMessage() + "\n");
 //        printPrompt();
+    }
+
+    public void loadGame(LoadGameMessage message) {
+        globalGameData = message.getGame();
+        if (visitorName.equals(globalGameData.whiteUsername())) {
+            globalTeamColor = "WHITE";
+        } else if (visitorName.equals(globalGameData.blackUsername())) {
+            globalTeamColor = "BLACK";
+        } else {
+            globalTeamColor = "WHITE"; // observe the game from white perspective
+            return;
+        }
+        printBoard(globalGameData.game(), globalTeamColor);
     }
 
     public void run() {

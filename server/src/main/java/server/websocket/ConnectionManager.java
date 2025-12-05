@@ -28,13 +28,17 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcast(Session excludeSession, ServerMessage serverMessage, int gameID) throws IOException {
+    public void broadcast(Session excludeSession, ServerMessage serverMessage, int gameID, boolean onlyCurrentUser) throws IOException {
         Gson Serializer = new Gson();
         String msg = Serializer.toJson(serverMessage);
         Set<Session> sessions = connections.get(gameID);
         for (Session c : sessions) {
             if (c.isOpen()) {
-                if (!c.equals(excludeSession)) { // put this back
+                if (onlyCurrentUser && c.equals(excludeSession)) {
+                    c.getRemote().sendString(msg);
+                    break;
+                }
+                if (!c.equals(excludeSession) && !onlyCurrentUser) { // put this back
                     c.getRemote().sendString(msg);
                 }
             }

@@ -1,5 +1,8 @@
 package server.websocket;
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.InvalidMoveException;
 import dataaccess.*;
 import jakarta.websocket.*;
 import com.google.gson.Gson;
@@ -16,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -72,11 +76,26 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         session.getRemote().sendString(new Gson().toJson(message));
     }
 
-    public void makeMove(Session session, String username, String message) {
+    public void makeMove(Session session, String username, String message) throws DataAccessException, InvalidMoveException {
         Gson Serializer = new Gson();
         MakeMoveCommand command = Serializer.fromJson(
                 message, MakeMoveCommand.class);
-        // more
+        ChessMove move = command.getMove();
+        int gameID = command.getGameID();
+        GameData gameData = gameAccess.getGame(gameID);
+        ChessGame game = gameData.game();
+        game.makeMove(move);
+        GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+        var loadgame = new LoadGameMessage(newGameData);
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getStartPosition();
+        int rows = startPosition.getRow();
+        int cols = startPosition.getColumn();
+        int rowe = endPosition.getRow();
+        int cole = endPosition.getColumn();
+
+        connections.broadcast(session, notification, gameID, false);
+
     }
 
     public void leaveGame(Session session, String username, UserGameCommand command) throws DataAccessException, IOException {
@@ -92,7 +111,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
         var message = String.format("%s left the game as %s", username, playerColor);
         var notification = new NotificationMessage(message);
-        connections.broadcast(session, notification, gameID);
+        connections.broadcast(session, notification, gameID, false);
+        connections.remove(gameID, session);
     }
 
     public void resign(Session session, String username, UserGameCommand command) {
@@ -112,7 +132,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
         var message = String.format("%s joined the game as %s", username, playerColor);
         var notification = new NotificationMessage(message);
-        connections.broadcast(session, notification, gameID);
+        var loadgame = new LoadGameMessage(gameData);
+        connections.broadcast(session, notification, gameID, false);
+        connections.broadcast(session, loadgame, gameID, true);
     }
 
     public String getUsername(String authToken) throws DataAccessException {
@@ -128,11 +150,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     //
-//    public void makeMove() {
-//        MakeMoveCommand command = Serializer.fromJson(
-//                wsMessageContext.message(), UserGameCommand.class);
-//        send(command);
-//    }
 
 //    private void enter(String visitorName, Session session) throws IOException {
 //        connections.add(session);
