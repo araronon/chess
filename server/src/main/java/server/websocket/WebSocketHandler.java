@@ -86,6 +86,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         int gameID = command.getGameID();
         GameData gameData = gameAccess.getGame(gameID);
         ChessGame game = gameData.game();
+        if (game.getGameOver().equals("YES")) {
+            throw new InvalidMoveException();
+        }
         ChessGame.TeamColor playerColor = null;
         String playerColorString = "";
         if (username.equals(gameData.whiteUsername())) {
@@ -138,8 +141,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.remove(gameID, session);
     }
 
-    public void resign(Session session, String username, UserGameCommand command) {
-
+    public void resign(Session session, String username, UserGameCommand command) throws DataAccessException, InvalidMoveException, IOException {
+        int gameID = command.getGameID();
+        GameData gameData = gameAccess.getGame(gameID);
+        ChessGame game = gameData.game();
+        if (game.getGameOver().equals("YES")) {
+            throw new InvalidMoveException();
+        }
+        String playerColorString = "";
+        if (username.equals(gameData.whiteUsername())) {
+            playerColorString = "WHITE";
+        } else if (username.equals(gameData.blackUsername())) {
+            playerColorString = "BLACK";
+        } else {
+            playerColorString = "OBSERVER";
+        }
+        if (playerColorString.equals("OBSERVER")) {
+            throw new InvalidMoveException();
+        }
+        game.setGameOver("YES");
+        GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+        gameAccess.updateGame(playerColorString,username,gameID,game);
+        var loadgame = new LoadGameMessage(newGameData);
+        var notificationmessage = String.format("%s has resigned.", username); // no pawn in here for now
+        var notification = new NotificationMessage(notificationmessage);
+        connections.broadcast(session, notification, gameID, false);
+        connections.broadcast(session, notification, gameID, true);
     }
 
     public void connect(Session session, String username, UserGameCommand command) throws DataAccessException, IOException {

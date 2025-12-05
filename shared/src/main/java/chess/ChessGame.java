@@ -14,11 +14,13 @@ public class ChessGame {
 
     private TeamColor currentTeamColor;
     private ChessBoard currentBoard;
+    private String gameOver;
 
     public ChessGame() {
         this.currentBoard = new ChessBoard();
         this.currentBoard.resetBoard();
         this.currentTeamColor = TeamColor.WHITE;
+        this.gameOver = "NO";
     }
 
     /**
@@ -42,6 +44,14 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK
+    }
+
+    public String getGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(String gamestate) {
+        gameOver = gamestate;
     }
 
     /**
