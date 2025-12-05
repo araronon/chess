@@ -195,7 +195,7 @@ public class DAOTests {
         UserData testUser = new UserData("Testusername","Testpassword","Testemail");
         sqlUserAccess.createUser(testUser);
         int gameID = sqlGameAccess.createGame("Test Game");
-        sqlGameAccess.updateGame("BLACK","Testusername",1001);
+        sqlGameAccess.updateGame("BLACK","Testusername",1001, null);
         GameData gameData = sqlGameAccess.getGame(gameID);
         Assertions.assertEquals(gameData.blackUsername(),testUser.username());
     }
@@ -210,7 +210,7 @@ public class DAOTests {
         UserData testUser = new UserData("Testusername","Testpassword","Testemail");
         sqlUserAccess.createUser(testUser);
         int gameID = sqlGameAccess.createGame("Test Game");
-        Assertions.assertThrows(DataAccessException.class, ()->sqlGameAccess.updateGame("BLACK","Testusername",50000));
+        Assertions.assertThrows(DataAccessException.class, ()->sqlGameAccess.updateGame("BLACK","Testusername",50000, null));
     }
 
     @Test
@@ -223,7 +223,7 @@ public class DAOTests {
         UserData testUser = new UserData("Testusername","Testpassword","Testemail");
         sqlUserAccess.createUser(testUser);
         int gameID = sqlGameAccess.createGame("Test Game");
-        sqlGameAccess.updateGame("BLACK","Testusername",1001);
+        sqlGameAccess.updateGame("BLACK","Testusername",1001, null);
         List<GameData> gameDataActual = new ArrayList<>(sqlGameAccess.listGames());
         Assertions.assertEquals(gameDataActual.get(0).blackUsername(),testUser.username());
     }

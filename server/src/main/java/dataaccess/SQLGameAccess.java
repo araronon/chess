@@ -108,9 +108,18 @@ public class SQLGameAccess implements GameAccess {
     }
 
     @Override
-    public void updateGame(String playerColor, String username, int gameID) throws DataAccessException {
-        GameData gameData = getGame(gameID);
+    public void updateGame(String playerColor, String username, int gameID, ChessGame game) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
+            if (game != null) {
+                GameData gameData = getGame(gameID);
+                GameData newGameData = new GameData(gameData.gameID(),gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName(),game);
+                var gameupdatestatement = "UPDATE gameData SET json = ? WHERE gameID = ?";
+                String json = new Gson().toJson(newGameData);
+                DBI dbi = new DBI();
+                dbi.executeUpdate(gameupdatestatement, json, gameID);
+                return;
+            }
+            GameData gameData = getGame(gameID);
             if (playerColor.equals("BLACK")) {
                 GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(), gameData.game());
                 var blackstatement = "UPDATE gameData SET json = ? WHERE gameID = ?";

@@ -65,7 +65,7 @@ public class GameService {
                 || (gameJoinRequest.playerColor().equals("WHITE") && gameData.whiteUsername() != null)) {
             throw new AlreadyTakenException();
         }
-        gameAccess.updateGame(gameJoinRequest.playerColor(), authData.username(), gameJoinRequest.gameID());
+        gameAccess.updateGame(gameJoinRequest.playerColor(), authData.username(), gameJoinRequest.gameID(), null);
     }
 
     public void clear() throws DataAccessException {

@@ -34,7 +34,12 @@ public class MemoryGameAccess implements GameAccess {
         }
 
     @Override
-    public void updateGame(String playerColor, String username, int gameID) {
+    public void updateGame(String playerColor, String username, int gameID, ChessGame game) {
+        if (game != null) {
+            GameData gameData = getGame(gameID);
+            GameData newGameData = new GameData(gameData.gameID(),gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName(),game);
+            gameMap.put(gameID,newGameData);
+        }
         GameData gameData = getGame(gameID);
         if (playerColor.equals("BLACK")) {
             GameData newGameData = new GameData(gameData.gameID(),gameData.whiteUsername(),username,gameData.gameName(),gameData.game());

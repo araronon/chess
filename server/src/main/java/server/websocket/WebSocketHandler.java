@@ -98,9 +98,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } else if (username.equals(gameData.blackUsername())) {
             playerColor = "BLACK";
             game.setTeamTurn(ChessGame.TeamColor.WHITE);
+        } else {
+            playerColor = "UNKNOWN";
         }
         GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
-        gameAccess.updateGame()
+        gameAccess.updateGame(playerColor,username,gameID,game);
         var loadgame = new LoadGameMessage(newGameData);
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
