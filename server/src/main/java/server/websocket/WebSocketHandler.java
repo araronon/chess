@@ -67,16 +67,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 //            sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
 //        }
         catch (Exception ex) {
-            ex.printStackTrace();
-            sendMessage(session, gameId, new ErrorMessage("Unknown exception in WebSocketHandler"));
+//            ex.printStackTrace();
+//            connections.broadcast(session, new ErrorMessage(ex.getMessage()), gameId, true);
+            sendMessage(session, gameId, new ErrorMessage("Error happened."));
         }
     }
 
     public void sendMessage(Session session, int GameID, ServerMessage message) throws IOException {
-        session.getRemote().sendString(new Gson().toJson(message));
+        String errorMessage = new Gson().toJson(message);
+        session.getRemote().sendString(errorMessage);
     }
 
-    public void makeMove(Session session, String username, String message) throws DataAccessException, InvalidMoveException {
+    public void makeMove(Session session, String username, String message) throws DataAccessException, InvalidMoveException, IOException {
         Gson Serializer = new Gson();
         MakeMoveCommand command = Serializer.fromJson(
                 message, MakeMoveCommand.class);
@@ -84,17 +86,38 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         int gameID = command.getGameID();
         GameData gameData = gameAccess.getGame(gameID);
         ChessGame game = gameData.game();
+        String playerColor;
+//        if (game.isInCheckmate(ChessGame.TeamColor.BLACK) || (game.isInCheckmate(ChessGame.TeamColor.WHITE) || //
+//        game.isInStalemate(ChessGame.TeamColor.BLACK) || (game.isInStalemate(ChessGame.TeamColor.WHITE))){
+//
+//        }
         game.makeMove(move);
+        if (username.equals(gameData.whiteUsername())) {
+            playerColor = "WHITE";
+            game.setTeamTurn(ChessGame.TeamColor.BLACK);
+        } else if (username.equals(gameData.blackUsername())) {
+            playerColor = "BLACK";
+            game.setTeamTurn(ChessGame.TeamColor.WHITE);
+        }
         GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+        gameAccess.updateGame()
         var loadgame = new LoadGameMessage(newGameData);
         ChessPosition startPosition = move.getStartPosition();
-        ChessPosition endPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
         int rows = startPosition.getRow();
         int cols = startPosition.getColumn();
         int rowe = endPosition.getRow();
         int cole = endPosition.getColumn();
-
+        // convert cols to normal move notation
+        String[] columns = {"a","b","c","d","e","f","g","h"};
+        String colstart = columns[cols-1];
+        String colend = columns[cole-1];
+        var notificationmessage = String.format("%s made move from %s%d to %s%d.", username, colstart, rows,colend,rowe); // no pawn in here for now
+        var notification = new NotificationMessage(notificationmessage);
+        connections.broadcast(session, loadgame, gameID, false);
         connections.broadcast(session, notification, gameID, false);
+        connections.broadcast(session, loadgame, gameID, true);
+//        connections.broadcast(session, notification, gameID, true);
 
     }
 

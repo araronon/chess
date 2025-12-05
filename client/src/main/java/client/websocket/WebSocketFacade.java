@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 
 import jakarta.websocket.*;
 import websocket.commands.MakeMoveCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -57,11 +58,10 @@ public class WebSocketFacade extends Endpoint {
                         LoadGameMessage msg = new Gson().fromJson(message, LoadGameMessage.class);
                         notificationHandler.notify(msg);
                     }
-//                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
-//                        ErrorMesssage msg = new Gson().fromJson(message, ErrorMessage.class);
-//                        notificationHandler.notify(msg);
-//                    }
-
+                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+                        ErrorMessage msg = new Gson().fromJson(message, ErrorMessage.class);
+                        notificationHandler.notify(msg);
+                    }
                 }
             });
 
