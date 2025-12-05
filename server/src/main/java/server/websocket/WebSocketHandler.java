@@ -127,13 +127,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void leaveGame(Session session, String username, UserGameCommand command) throws DataAccessException, IOException {
         int gameID = command.getGameID();
         GameData gameData = gameAccess.getGame(gameID);
+        ChessGame game = gameData.game();
         String playerColor;
         if (username.equals(gameData.whiteUsername())) {
             playerColor = "WHITE";
+            gameAccess.updateGame(playerColor,null,gameID,null);
         } else if (username.equals(gameData.blackUsername())) {
             playerColor = "BLACK";
+            gameAccess.updateGame(playerColor,null,gameID,null);
         } else {
-            playerColor = "OBSERVER";
+            playerColor = "OBSERVER"; // no update needed
         }
         var message = String.format("%s left the game as %s", username, playerColor);
         var notification = new NotificationMessage(message);
