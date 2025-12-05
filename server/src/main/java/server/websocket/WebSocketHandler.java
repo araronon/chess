@@ -86,23 +86,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         int gameID = command.getGameID();
         GameData gameData = gameAccess.getGame(gameID);
         ChessGame game = gameData.game();
-        String playerColor;
-//        if (game.isInCheckmate(ChessGame.TeamColor.BLACK) || (game.isInCheckmate(ChessGame.TeamColor.WHITE) || //
-//        game.isInStalemate(ChessGame.TeamColor.BLACK) || (game.isInStalemate(ChessGame.TeamColor.WHITE))){
-//
-//        }
-        game.makeMove(move);
+        ChessGame.TeamColor playerColor = null;
+        String playerColorString = "";
         if (username.equals(gameData.whiteUsername())) {
-            playerColor = "WHITE";
-            game.setTeamTurn(ChessGame.TeamColor.BLACK);
+            playerColor = ChessGame.TeamColor.WHITE;
+            playerColorString = "WHITE";
         } else if (username.equals(gameData.blackUsername())) {
-            playerColor = "BLACK";
-            game.setTeamTurn(ChessGame.TeamColor.WHITE);
-        } else {
-            playerColor = "UNKNOWN";
+            playerColor = ChessGame.TeamColor.BLACK;
+            playerColorString = "BLACK";
         }
+        if (playerColor != game.getTeamTurn()) {
+            throw new InvalidMoveException();
+        }
+        game.makeMove(move);
         GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
-        gameAccess.updateGame(playerColor,username,gameID,game);
+        gameAccess.updateGame(playerColorString,username,gameID,game);
         var loadgame = new LoadGameMessage(newGameData);
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
@@ -141,7 +139,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     public void resign(Session session, String username, UserGameCommand command) {
-        // more
+
     }
 
     public void connect(Session session, String username, UserGameCommand command) throws DataAccessException, IOException {
