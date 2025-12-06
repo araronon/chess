@@ -102,25 +102,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
         game.makeMove(move);
         // check is in check, is in checkmate
-        if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
+        if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            var notification = new NotificationMessage(String.format("%s is now in checkmate. The game is over.", gameData.blackUsername()));
+            connections.broadcast(session, notification, gameID, false);
+            connections.broadcast(session, notification, gameID, true);
+            game.setGameOver("YES");
+        } else if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
             var notification = new NotificationMessage(String.format("%s is now in check.", gameData.blackUsername()));
             connections.broadcast(session, notification, gameID, false);
             connections.broadcast(session, notification, gameID, true);
-        } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-            var notification = new NotificationMessage(String.format("%s is now in checkmate.", gameData.blackUsername()));
+        }
+        if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            var notification = new NotificationMessage(String.format("%s is now in checkmate. The game is over.", gameData.whiteUsername()));
+            game.setGameOver("YES");
             connections.broadcast(session, notification, gameID, false);
             connections.broadcast(session, notification, gameID, true);
-            game.setGameOver("YES");
-        }
-        if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
+        } else if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
             var notification = new NotificationMessage(String.format("%s is now in check.", gameData.whiteUsername()));
             connections.broadcast(session, notification, gameID, false);
             connections.broadcast(session, notification, gameID, true);
-        } else if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
-            var notification = new NotificationMessage(String.format("%s is now in checkmate.", gameData.whiteUsername()));
-            connections.broadcast(session, notification, gameID, false);
-            connections.broadcast(session, notification, gameID, true);
-            game.setGameOver("YES");
         }
 
         GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
@@ -142,7 +142,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(session, notification, gameID, false);
         connections.broadcast(session, loadgame, gameID, true);
 //        connections.broadcast(session, notification, gameID, true);
-
     }
 
     public void leaveGame(Session session, String username, UserGameCommand command) throws DataAccessException, IOException {

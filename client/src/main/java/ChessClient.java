@@ -247,7 +247,10 @@ public class ChessClient implements NotificationHandler {
             int cole = colend - 'A' + 1;
             int rowe = rowend - '0';
             ChessGame game = globalGameData.game();
-            ChessPiece piece = game.getBoard().getPiece(new ChessPosition(rowe,cole));
+            ChessPiece piece = game.getBoard().getPiece(new ChessPosition(rows,cols));
+            if (piece == null) {
+                throw new ResponseException(String.format("There is no piece at %s%s", colstart, rowstart));
+            }
             ChessPiece passedPiece = null;
             ChessPiece.PieceType promotePiece = null;
             if ((rowe == 8 || rowe == 1) && (piece.getPieceType() == ChessPiece.PieceType.PAWN)) {
