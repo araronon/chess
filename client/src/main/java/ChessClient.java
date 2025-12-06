@@ -115,7 +115,7 @@ public class ChessClient implements NotificationHandler {
                 case "joingame" -> joinGame(params);
                 case "observegame" -> observeGame(params);
                 // implement in gameplay
-//                case "redraw" -> redrawBoard();
+                case "redraw" -> redrawBoard();
                 case "leave" -> leaveGame();
 //                case "makemove" -> makeMove(params);
 //                case "resign" -> resign();
@@ -131,6 +131,11 @@ public class ChessClient implements NotificationHandler {
     }
     }
 
+    public void redrawBoard() throws ResponseException {
+        assertLoggedIn();
+        assertInGamePlay();
+        printBoard(globalGameData.game(), globalTeamColor);
+    }
 
     public String unrecognizedCmd() {
         return """
@@ -163,34 +168,54 @@ public class ChessClient implements NotificationHandler {
                 """;
     }
 
-//    public String makeMove(String ... params) throws ResponseException {
-//        assertLoggedIn();
-//        assertJoinedGame();
-//        if (params.length == 2) {
-//            String startcommand = params[0].toUpperCase();
-//            String endcommand = params[1].toUpperCase();
-//            if (startcommand.length() != 2 || endcommand.length() != 2) {
-//                throw new ResponseException("Invalid argument command length for moves. Need a1 b1 format.");
-//            }
-//            char colstart = startcommand.charAt(0);
-//            char rowstart = startcommand.charAt(1);
-//            char colend = endcommand.charAt(0);
-//            char rowend = endcommand.charAt(1);
-//            if (colstart < 'A' || colstart > 'H' ||
-//                    colend < 'A'   || colend > 'H'   ||
-//                    rowstart < '1'|| rowstart > '8'||
-//                    rowend < '1'  || rowend > '8') {
-//                throw new ResponseException("Invalid arguments for moves. Need a1 b1 format.");
-//            }
-//            int cols = colstart - 'A' + 1;
-//            int rows = rowstart - '0';
-//            int cole = colend - 'A' + 1;
-//            int rowe = rowend - '0';
-//            wsserver.makeMove(cols, rows, cole, rowe, globalTeamColor, globalGameID);
-//            return String.format("Successfully made the move from %s to %s", startcommand, endcommand);
-//        }
-//        throw new ResponseException("Expected: <yourname> <yourpassword>");
-//    }
+    public String makeMove(String ... params) throws ResponseException {
+        assertLoggedIn();
+        assertJoinedGame();
+        if (params.length == 3) {
+            String startcommand = params[0].toUpperCase();
+            String endcommand = params[1].toUpperCase();
+            String promotionPiece = params[2].toUpperCase();
+            if (startcommand.length() != 2 || endcommand.length() != 2) {
+                throw new ResponseException("Invalid argument command length for moves. Need a1 b1 format.");
+            }
+            char colstart = startcommand.charAt(0);
+            char rowstart = startcommand.charAt(1);
+            char colend = endcommand.charAt(0);
+            char rowend = endcommand.charAt(1);
+            if (colstart < 'A' || colstart > 'H' ||
+                    colend < 'A'   || colend > 'H'   ||
+                    rowstart < '1'|| rowstart > '8'||
+                    rowend < '1'  || rowend > '8') {
+                throw new ResponseException("Invalid arguments for moves. Need a1 b1 format.");
+            }
+            int cols = colstart - 'A' + 1;
+            int rows = rowstart - '0';
+            int cole = colend - 'A' + 1;
+            int rowe = rowend - '0';
+            ChessGame game = globalGameData.game();
+            ChessPiece piece = game.getBoard().getPiece(new ChessPosition(rowe,cole));
+            ChessPiece passedPiece = null;
+            if ((rowe == 8 || rowe == 1) && (piece.getPieceType() == ChessPiece.PieceType.PAWN)) {
+                ChessPiece.PieceType promotePiece = null;
+                switch (promotionPiece) {
+                    case "QUEEN" -> promotePiece = ChessPiece.PieceType.QUEEN;
+                    case "ROOK" -> promotePiece = ChessPiece.PieceType.ROOK;
+                    case "BISHOP" -> promotePiece = ChessPiece.PieceType.BISHOP;
+                    case "KNIGHT" -> promotePiece = ChessPiece.PieceType.KNIGHT;
+                }
+                ChessGame.TeamColor teamColor = null;
+                if (globalTeamColor.equals("WHITE")) {
+                    teamColor = ChessGame.TeamColor.WHITE;
+                } else {
+                    teamColor = ChessGame.TeamColor.WHITE;
+                }
+                passedPiece = new ChessPiece(teamColor,promotePiece);
+            }
+            wsserver.makeMove(cols, rows, cole, rowe, passedPiece, authToken, globalGameID);
+            return String.format("Successfully made the move from %s to %s", startcommand, endcommand);
+        }
+        throw new ResponseException("Expected: <yourname> <yourpassword>");
+    }
 
     public String leaveGame(String ... params) throws ResponseException {
         assertLoggedIn();

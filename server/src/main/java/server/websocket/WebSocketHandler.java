@@ -102,6 +102,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             throw new InvalidMoveException();
         }
         game.makeMove(move);
+        // check is in check, is in checkmate
+
         GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
         gameAccess.updateGame(playerColorString,username,gameID,game);
         var loadgame = new LoadGameMessage(newGameData);
