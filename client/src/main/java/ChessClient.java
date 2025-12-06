@@ -134,6 +134,13 @@ public class ChessClient implements NotificationHandler {
     public String resign() throws ResponseException {
         assertLoggedIn();
         assertJoinedGame();
+        System.out.print("Type y to confirm resignation. Any other key will not confirm");
+        Scanner scanner = new Scanner(System.in);
+        String confirmation = scanner.nextLine().toLowerCase();
+        if (!confirmation.equals("y")) {
+            return "Resignation not confirmed.";
+        }
+
         wsserver.resign(visitorName, authToken, globalGameID);
         return "";
     }
@@ -161,9 +168,11 @@ public class ChessClient implements NotificationHandler {
                     """;
         } if (gamestate == State.JOINEDGAME) {
             return """
-                - leave
-                - resign
-                - 
+                - leave - leave the game
+                - resign - forfeit to the other player
+                - highlight <chessposition> - give all eligible moves for a player
+                - redraw - redraws the board from your perspective
+                - makemove <startchessposition> <endchessposition> <promotionPiece> - note you must include a valid piece for promotion piece.
                 """;
         }
         return """
