@@ -46,7 +46,7 @@ public class Server {
             });
 //            ws.onConnect(webSocketHandler);
             ws.onMessage(webSocketHandler);
-            ws.onClose(_ -> System.out.println("Websocket closed"));
+            ws.onClose(ctx -> System.out.println("Websocket closed"));
 //            ws.onClose(webSocketHandler);
         });
         javalin.post("session", this::login);
