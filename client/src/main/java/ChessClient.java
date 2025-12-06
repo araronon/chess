@@ -46,11 +46,12 @@ public class ChessClient implements NotificationHandler {
 
     public void displayError(ErrorMessage message) {
         System.out.println("\n" + message.getMessage() + "\n");
+        printPrompt();
     }
 
     public void displayNotification(NotificationMessage message) {
         System.out.println("\n" + message.getMessage() + "\n");
-//        printPrompt();
+        printPrompt();
     }
 
     public void loadGame(LoadGameMessage message) {
@@ -97,6 +98,10 @@ public class ChessClient implements NotificationHandler {
         }
         if (gamestate == State.JOINEDGAME) {
             System.out.print("\n" + "[INGAME] " + ">>> " + " ");
+            return;
+        }
+        if (observedstate == State.OBSERVINGGAME) {
+            System.out.print("\n" + "[OBSERVINGGAME] " + ">>> " + " ");
             return;
         }
         System.out.print("\n" + "[LOGGEDIN] " + ">>> " + " ");
@@ -200,6 +205,12 @@ public class ChessClient implements NotificationHandler {
                 - redraw - redraws the board from your perspective
                 - makemove <startchessposition> <endchessposition> <promotionPiece> - note you must include a valid piece for promotion piece.
                 """;
+        } if (observedstate == State.OBSERVINGGAME) {
+            return """
+                - leave - leave the game
+                - highlight <chessposition> - give all eligible moves for a player
+                - redraw - redraws the board from your perspective
+                """;
         }
         return """
                 - logout - sign out of your account
@@ -286,6 +297,9 @@ public class ChessClient implements NotificationHandler {
         assertLoggedIn();
         if (params.length == 0) {
             server.logout(authToken);
+            if (gamestate == State.JOINEDGAME || observedstate == State.OBSERVINGGAME) {
+                leaveGame();
+            }
             signinstate = State.LOGGEDOUT;
             gamestate = State.NOTJOINEDGAME;
             visitorName = null;
@@ -340,6 +354,7 @@ public class ChessClient implements NotificationHandler {
     public String joinGame(String... params) throws ResponseException {
         assertLoggedIn();
         assertNotJoinedGame();
+        assertNotObservingGame();
         if (params.length == 2) {
             String gameNumber = params[0];
             String playerColor = params[1].toUpperCase();
@@ -362,7 +377,7 @@ public class ChessClient implements NotificationHandler {
             }
             throw new ResponseException("Incorrect Input: Game identifier doesn't exist.");
         }
-        throw new ResponseException("Expected: no additional parameters");
+        throw new ResponseException("Expected: <game number> <color>");
     }
 
     public String observeGame(String... params) throws ResponseException {

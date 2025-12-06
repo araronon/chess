@@ -100,7 +100,7 @@ public class ChessGame {
         }
         TeamColor teamColor = checkPiece.getTeamColor();
         if (getTeamTurn() != teamColor) {
-            throw new InvalidMoveException("Not your turn.");
+            throw new InvalidMoveException("You can't move another player's piece.");
         }
         for (ChessMove movement : validMoves(startPosition)) {
             if (move.equals(movement)) {
