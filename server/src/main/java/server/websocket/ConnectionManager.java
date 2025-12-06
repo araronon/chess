@@ -29,8 +29,8 @@ public class ConnectionManager {
     }
 
     public void broadcast(Session excludeSession, ServerMessage serverMessage, int gameID, boolean onlyCurrentUser) throws IOException {
-        Gson Serializer = new Gson();
-        String msg = Serializer.toJson(serverMessage);
+        Gson serializer = new Gson();
+        String msg = serializer.toJson(serverMessage);
         Set<Session> sessions = connections.get(gameID);
         for (Session c : sessions) {
             if (c.isOpen()) {

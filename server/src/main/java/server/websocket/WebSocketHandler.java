@@ -48,8 +48,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         int gameId = -1;
         Session session = wsMessageContext.session;
         try {
-            Gson Serializer = new Gson();
-            UserGameCommand command = Serializer.fromJson(
+            Gson serializer = new Gson();
+            UserGameCommand command = serializer.fromJson(
                     wsMessageContext.message(), UserGameCommand.class);
             gameId = command.getGameID();
             String username = getUsername(command.getAuthToken());
@@ -66,20 +66,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             sendMessage(session, gameId, new ErrorMessage(ex.getMessage()));
         }
         catch (Exception ex) {
-//            ex.printStackTrace();
-//            connections.broadcast(session, new ErrorMessage(ex.getMessage()), gameId, true);
             sendMessage(session, gameId, new ErrorMessage("Error happened."));
         }
     }
 
-    public void sendMessage(Session session, int GameID, ServerMessage message) throws IOException {
+    public void sendMessage(Session session, int gameID, ServerMessage message) throws IOException {
         String errorMessage = new Gson().toJson(message);
         session.getRemote().sendString(errorMessage);
     }
 
     public void makeMove(Session session, String username, String message) throws DataAccessException, InvalidMoveException, IOException {
-        Gson Serializer = new Gson();
-        MakeMoveCommand command = Serializer.fromJson(
+        Gson serializer = new Gson();
+        MakeMoveCommand command = serializer.fromJson(
                 message, MakeMoveCommand.class);
         ChessMove move = command.getMove();
         int gameID = command.getGameID();
@@ -221,30 +219,4 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void handleClose(WsCloseContext ctx) {
         System.out.println("Websocket closed");
     }
-
-    //
-
-//    private void enter(String visitorName, Session session) throws IOException {
-//        connections.add(session);
-//        var message = String.format("%s is in the shop", visitorName);
-//        var notification = new Notification(Notification.Type.ARRIVAL, message);
-//        connections.broadcast(session, notification);
-//    }
-//
-//    private void exit(String visitorName, Session session) throws IOException {
-//        var message = String.format("%s left the shop", visitorName);
-//        var notification = new Notification(Notification.Type.DEPARTURE, message);
-//        connections.broadcast(session, notification);
-//        connections.remove(session);
-//    }
-//
-//    public void makeNoise(String petName, String sound) throws ResponseException {
-//        try {
-//            var message = String.format("%s says %s", petName, sound);
-//            var notification = new Notification(Notification.Type.NOISE, message);
-//            connections.broadcast(null, notification);
-//        } catch (Exception ex) {
-//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-//        }
-//    }
 }
