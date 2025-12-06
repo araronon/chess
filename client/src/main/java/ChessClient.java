@@ -65,6 +65,8 @@ public class ChessClient implements NotificationHandler {
         }
         System.out.println("\n");
         printBoard(globalGameData.game(), globalTeamColor);
+        System.out.println("\n");
+        printPrompt();
     }
 
     public void run() {
@@ -255,7 +257,7 @@ public class ChessClient implements NotificationHandler {
             wsserver.makeMove(cols, rows, cole, rowe, promotePiece, authToken, globalGameID);
             return "";
         }
-        throw new ResponseException("Expected: <yourname> <yourpassword>");
+        throw new ResponseException("Expected: <startposition> <endposition> <promotionpiece>");
     }
 
     public String leaveGame(String ... params) throws ResponseException {
@@ -480,10 +482,10 @@ public class ChessClient implements NotificationHandler {
                 for (ChessMove move : validMoves) {
                     ChessPosition validPosition = move.getEndPosition();
                     if (validPosition.equals(currentPosition)) {
-                        background += SET_BG_COLOR_YELLOW;
+                        background += SET_BG_COLOR_BLUE;
                     }
                     if (currentPosition.equals(move.getStartPosition())) {
-                        background += SET_BG_COLOR_YELLOW;
+                        background += SET_BG_COLOR_BLUE;
                     }
                 }
                 String piece = checkPiece(board.getPiece(currentPosition));
