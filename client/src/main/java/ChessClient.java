@@ -23,12 +23,10 @@ public class ChessClient implements NotificationHandler {
     private HashMap<String, GameData> numberToId = new HashMap<>();
     private String globalTeamColor;
     private GameData globalGameData;
-
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
         wsserver = new WebSocketFacade(serverUrl, this);
     }
-
     @Override
     public void notify(ServerMessage message) {
         switch (message.getServerMessageType()) {
@@ -37,17 +35,14 @@ public class ChessClient implements NotificationHandler {
             case LOAD_GAME -> loadGame(((LoadGameMessage) message));
         }
     }
-
     public void displayError(ErrorMessage message) {
         System.out.println("\n" + message.getMessage() + "\n");
         printPrompt();
     }
-
     public void displayNotification(NotificationMessage message) {
         System.out.println("\n" + message.getMessage() + "\n");
         printPrompt();
     }
-
     public void loadGame(LoadGameMessage message) {
         globalGameData = message.getGame();
         if (visitorName.equals(globalGameData.whiteUsername())) {
@@ -63,7 +58,6 @@ public class ChessClient implements NotificationHandler {
         System.out.println("\n");
         printPrompt();
     }
-
     public void run() {
         System.out.println(" Welcome to chess. Sign in to start.");
         System.out.print(help());
@@ -82,7 +76,6 @@ public class ChessClient implements NotificationHandler {
         }
         System.out.println();
     }
-
     private void printPrompt() {
         if (signinstate == State.LOGGEDOUT) {
             System.out.print("\n" + "[LOGGEDOUT] " + ">>> " + " ");
@@ -98,7 +91,6 @@ public class ChessClient implements NotificationHandler {
         }
         System.out.print("\n" + "[LOGGEDIN] " + ">>> " + " ");
     }
-
     public String eval(String input) {
         try {
             String[] tokens = input.split(" ");
@@ -259,7 +251,6 @@ public class ChessClient implements NotificationHandler {
         }
         throw new ResponseException("Expected: <startposition> <endposition> <promotionpiece>");
     }
-
     public String leaveGame(String ... params) throws ResponseException {
         assertLoggedIn();
         assertInGamePlay();
@@ -268,7 +259,6 @@ public class ChessClient implements NotificationHandler {
         wsserver.leaveGame(visitorName, authToken, globalGameID);
         return String.format("Successfully left the game");
     }
-
     public String login(String... params) throws ResponseException {
         assertLoggedOut();
         if (params.length == 2) {
@@ -281,7 +271,6 @@ public class ChessClient implements NotificationHandler {
         }
         throw new ResponseException("Expected: <yourname> <yourpassword>");
     }
-
     public String logout(String... params) throws ResponseException {
         assertLoggedIn();
         if (params.length == 0) {
@@ -297,7 +286,6 @@ public class ChessClient implements NotificationHandler {
         }
         throw new ResponseException("Expected: no additional parameters");
     }
-
     public String register(String... params) throws ResponseException {
         assertLoggedOut();
         if (params.length == 3) {
@@ -310,7 +298,6 @@ public class ChessClient implements NotificationHandler {
         }
         throw new ResponseException("Expected: <yourname> <yourpassword> <youremail>");
     }
-
     public String createGame(String... params) throws ResponseException {
         assertLoggedIn();
         if (params.length == 1) {
@@ -321,7 +308,6 @@ public class ChessClient implements NotificationHandler {
         }
         throw new ResponseException("Expected: no additional parameters");
     }
-
     public String listGames(String... params) throws ResponseException {
         assertLoggedIn();
         if (params.length == 0) {
@@ -339,7 +325,6 @@ public class ChessClient implements NotificationHandler {
         }
         throw new ResponseException("Expected: no additional parameters");
     }
-
     public String joinGame(String... params) throws ResponseException {
         assertLoggedIn();
         assertNotJoinedGame();
@@ -368,7 +353,6 @@ public class ChessClient implements NotificationHandler {
         }
         throw new ResponseException("Expected: <game number> <color>");
     }
-
     public String observeGame(String... params) throws ResponseException {
         assertLoggedIn();
         assertNotJoinedGame();
@@ -441,7 +425,8 @@ public class ChessClient implements NotificationHandler {
                     validMoves = game.validMoves(chessPosition);
                     for (ChessMove move : validMoves) {
                         ChessPosition validPosition = move.getEndPosition();
-                        if (validPosition.equals(currentPosition)) {background += SET_BG_COLOR_BLUE;}
+                        String stringresult = posFunc(currentPosition, validPosition);
+                        background += stringresult;
                     }
                 }
                 String piece = checkPiece(board.getPiece(currentPosition));
@@ -452,6 +437,11 @@ public class ChessClient implements NotificationHandler {
         }
         boardString = boardString + boardLabelString;
         System.out.print(boardString);
+    }
+    private String posFunc(ChessPosition validPosition, ChessPosition currentPosition) {
+        if (validPosition.equals(currentPosition)) {
+            return SET_BG_COLOR_BLUE;
+        } else {return "";}
     }
     private String checkPiece(ChessPiece piece) {
         if (piece == null) {
