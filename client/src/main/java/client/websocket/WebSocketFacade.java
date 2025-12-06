@@ -94,9 +94,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove(int cols, int rows, int cole, int rowe, ChessPiece promotionPiece, String authToken, int gameID) throws ResponseException {
+    public void makeMove(int cols, int rows, int cole, int rowe, ChessPiece.PieceType promotionPiece, String authToken, int gameID) throws ResponseException {
         try {
-            ChessMove move = new ChessMove(new ChessPosition(rows,cols), new ChessPosition(rowe,cole), promotionPiece.getPieceType());
+            ChessMove move = new ChessMove(new ChessPosition(rows,cols), new ChessPosition(rowe,cole), promotionPiece);
             MakeMoveCommand moveCommand = new MakeMoveCommand(authToken, gameID, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(moveCommand));
         } catch (Exception ex) {

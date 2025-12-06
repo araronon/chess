@@ -39,7 +39,7 @@ public class ChessClient implements NotificationHandler {
     public void notify(ServerMessage message) {
         switch (message.getServerMessageType()) {
             case NOTIFICATION -> displayNotification(((NotificationMessage) message));
-                case ERROR -> displayError(((ErrorMessage) message));
+            case ERROR -> displayError(((ErrorMessage) message));
             case LOAD_GAME -> loadGame(((LoadGameMessage) message));
         }
     }
@@ -63,6 +63,7 @@ public class ChessClient implements NotificationHandler {
             globalTeamColor = "WHITE"; // observe the game from white perspective
             return;
         }
+        System.out.println("\n");
         printBoard(globalGameData.game(), globalTeamColor);
     }
 
@@ -119,7 +120,7 @@ public class ChessClient implements NotificationHandler {
                 case "leave" -> leaveGame();
                 case "makemove" -> makeMove(params);
                 case "resign" -> resign();
-//                case "highlight" -> highlight(params);
+                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
                 default -> unrecognizedCmd();
             };
@@ -150,6 +151,29 @@ public class ChessClient implements NotificationHandler {
         assertInGamePlay();
         printBoard(globalGameData.game(), globalTeamColor);
         return "";
+    }
+
+    public String highlight(String... params) throws ResponseException {
+        assertLoggedIn();
+        assertInGamePlay();
+        if (params.length == 1) {
+            String startcommand = params[0].toUpperCase();
+            if (startcommand.length() != 2) {
+                throw new ResponseException("Invalid argument command length for moves. Need a1 b1 format.");
+            }
+            char colstart = startcommand.charAt(0);
+            char rowstart = startcommand.charAt(1);
+            if (colstart < 'A' || colstart > 'H' || rowstart < '1'|| rowstart > '8')
+            {
+                throw new ResponseException("Invalid arguments for moves. Need a1 b1 format.");
+            }
+            int cols = colstart - 'A' + 1;
+            int rows = rowstart - '0';
+            ChessPosition desiredPosition = new ChessPosition(rows,cols);
+            highlightBoard(desiredPosition, globalGameData.game(), globalTeamColor);
+            return String.format("Printing highlighted board.");
+        }
+        throw new ResponseException("Expected: <chessposition>");
     }
 
     public String unrecognizedCmd() {
@@ -212,8 +236,8 @@ public class ChessClient implements NotificationHandler {
             ChessGame game = globalGameData.game();
             ChessPiece piece = game.getBoard().getPiece(new ChessPosition(rowe,cole));
             ChessPiece passedPiece = null;
+            ChessPiece.PieceType promotePiece = null;
             if ((rowe == 8 || rowe == 1) && (piece.getPieceType() == ChessPiece.PieceType.PAWN)) {
-                ChessPiece.PieceType promotePiece = null;
                 switch (promotionPiece) {
                     case "QUEEN" -> promotePiece = ChessPiece.PieceType.QUEEN;
                     case "ROOK" -> promotePiece = ChessPiece.PieceType.ROOK;
@@ -228,8 +252,8 @@ public class ChessClient implements NotificationHandler {
                 }
                 passedPiece = new ChessPiece(teamColor,promotePiece);
             }
-            wsserver.makeMove(cols, rows, cole, rowe, passedPiece, authToken, globalGameID);
-            return String.format("Successfully made the move from %s to %s", startcommand, endcommand);
+            wsserver.makeMove(cols, rows, cole, rowe, promotePiece, authToken, globalGameID);
+            return "";
         }
         throw new ResponseException("Expected: <yourname> <yourpassword>");
     }
@@ -331,7 +355,6 @@ public class ChessClient implements NotificationHandler {
                     wsserver.joinGame(visitorName, authToken, gameJoinRequest.gameID());
                     gamestate = State.JOINEDGAME;
                     globalGameID = gameData.gameID();
-                    printBoard(numberToId.get(gameNumber).game(), playerColor);
                     return String.format("Successfully joined the game.");
                 }
             }
@@ -405,6 +428,65 @@ public class ChessClient implements NotificationHandler {
                     background = SET_BG_COLOR_LIGHT_GREY;
                 }
                 String piece = checkPiece(board.getPiece(new ChessPosition(row, displaycol)));
+                boardString = boardString + background + piece + RESET_BG_COLOR;
+            }
+            boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row)
+                    + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
+        }
+        boardString = boardString + boardLabelString;
+        System.out.print(boardString);
+    }
+
+    public void highlightBoard(ChessPosition chessPosition, ChessGame game, String playerColor) throws ResponseException {
+        ChessBoard board = game.getBoard();
+        if (game.getBoard().getPiece(chessPosition) == null) {
+            throw new ResponseException("No piece at this position.");
+        }
+        Collection<ChessMove> validMoves = game.validMoves(chessPosition);
+        String boardString = "";
+        String background = "";
+        String boardLabelString = "";
+        int rowstart;
+        int rowend;
+        int rowcontrol;
+        if (playerColor.equals("WHITE")) {
+            boardLabelString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " a "
+                    + " b " + " c " + " d " + " e " + " f " + " g " + " h " + "   " + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
+            rowstart = 8;
+            rowend = 0;
+            rowcontrol = -1;
+        } else {
+            boardLabelString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " h "
+                    + " g " + " f " + " e " + " d " + " c " + " b " + " a " + "   " + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
+            rowstart = 1;
+            rowend = 9;
+            rowcontrol = 1;
+        }
+
+        boardString = boardString + boardLabelString;
+        int displaycol = 0;
+        for (int row = rowstart; (rowcontrol > 0 ? row < rowend : row > rowend); row += rowcontrol) {
+            boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row) + RESET_BG_COLOR;
+            for (int col = 1; col < 9; col++) {
+                if (playerColor.equals("BLACK")) {
+                    displaycol = 9 - col;
+                } else {displaycol = col;}
+                if ((row + displaycol) % 2 == 0) {
+                    background = SET_BG_COLOR_DARK_GREEN;
+                } else {
+                    background = SET_BG_COLOR_LIGHT_GREY;
+                }
+                ChessPosition currentPosition = new ChessPosition(row, displaycol);
+                for (ChessMove move : validMoves) {
+                    ChessPosition validPosition = move.getEndPosition();
+                    if (validPosition.equals(currentPosition)) {
+                        background += SET_BG_COLOR_YELLOW;
+                    }
+                    if (currentPosition.equals(move.getStartPosition())) {
+                        background += SET_BG_COLOR_YELLOW;
+                    }
+                }
+                String piece = checkPiece(board.getPiece(currentPosition));
                 boardString = boardString + background + piece + RESET_BG_COLOR;
             }
             boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row)

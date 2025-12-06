@@ -62,9 +62,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case RESIGN -> resign(session, username, command);
             }
         }
-//        catch (UnauthorizedException ex) {
-//            sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
-//        }
+        catch (InvalidMoveException ex) {
+            sendMessage(session, gameId, new ErrorMessage(ex.getMessage()));
+        }
         catch (Exception ex) {
 //            ex.printStackTrace();
 //            connections.broadcast(session, new ErrorMessage(ex.getMessage()), gameId, true);
@@ -86,7 +86,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gameData = gameAccess.getGame(gameID);
         ChessGame game = gameData.game();
         if (game.getGameOver().equals("YES")) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Game is over.");
         }
         ChessGame.TeamColor playerColor = null;
         String playerColorString = "";
@@ -98,7 +98,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             playerColorString = "BLACK";
         }
         if (playerColor != game.getTeamTurn()) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("It isn't your turn.");
         }
         game.makeMove(move);
         // check is in check, is in checkmate

@@ -96,11 +96,11 @@ public class ChessGame {
         ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
         ChessPiece checkPiece = currentBoard.getPiece(startPosition);
         if (checkPiece == null) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("No piece was selected.");
         }
         TeamColor teamColor = checkPiece.getTeamColor();
         if (getTeamTurn() != teamColor) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Not your turn.");
         }
         for (ChessMove movement : validMoves(startPosition)) {
             if (move.equals(movement)) {
@@ -120,7 +120,7 @@ public class ChessGame {
                 return;
             }
         }
-        throw new InvalidMoveException();
+        throw new InvalidMoveException("This move is not a valid move for the selected piece.");
     }
 
     /**
