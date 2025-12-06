@@ -494,12 +494,12 @@ public class ChessClient implements NotificationHandler {
                     background = SET_BG_COLOR_LIGHT_GREY;
                 }
                 ChessPosition currentPosition = new ChessPosition(row, displaycol);
+                if (currentPosition.equals(chessPosition)) {
+                    background += SET_BG_COLOR_BLUE;
+                }
                 for (ChessMove move : validMoves) {
                     ChessPosition validPosition = move.getEndPosition();
                     if (validPosition.equals(currentPosition)) {
-                        background += SET_BG_COLOR_BLUE;
-                    }
-                    if (currentPosition.equals(move.getStartPosition())) {
                         background += SET_BG_COLOR_BLUE;
                     }
                 }
