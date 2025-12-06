@@ -42,6 +42,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket connected");
         ctx.enableAutomaticPings();
     }
+    public void handleClose(WsCloseContext ctx) {
+        System.out.println("Websocket closed");
+    }
 
     @Override
     public void handleMessage(@NotNull WsMessageContext wsMessageContext) throws Exception {
@@ -215,8 +218,5 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public void saveSession(int gameID, Session session) {
         connections.add(gameID, session);
-    }
-    public void handleClose(WsCloseContext ctx) {
-        System.out.println("Websocket closed");
     }
 }

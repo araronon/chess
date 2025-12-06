@@ -19,17 +19,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-//need to extend Endpoint for websocket to work properly
-
-//private void handleMessage(String messageString) {
-//    try {
-//        ServerMessage message = Serializer.fromJson(messageString, ServerMessage.class);
-//        listener.notify(message);
-//    } catch(Exception ex) {
-//        listener.notify(new ErrorMessage(ex.getMessage()));
-//    }
-//}
-
 public class WebSocketFacade extends Endpoint {
 
     Session session;
@@ -44,11 +33,8 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
-            //set message handler
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
-                // ServerMessage is Notification
-                // Action is UserGameCommand
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                     if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
@@ -71,7 +57,6 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
@@ -94,7 +79,8 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove(int cols, int rows, int cole, int rowe, ChessPiece.PieceType promotionPiece, String authToken, int gameID) throws ResponseException {
+    public void makeMove(int cols, int rows, int cole, int rowe, ChessPiece.PieceType promotionPiece,
+                         String authToken, int gameID) throws ResponseException {
         try {
             ChessMove move = new ChessMove(new ChessPosition(rows,cols), new ChessPosition(rowe,cole), promotionPiece);
             MakeMoveCommand moveCommand = new MakeMoveCommand(authToken, gameID, move);
@@ -112,23 +98,4 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(ex.getMessage());
         }
     }
-
-//    public void enterPetShop(String visitorName) throws ResponseException {
-//        try {
-//            var action = new Action(Action.Type.ENTER, visitorName);
-//            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-//        } catch (IOException ex) {
-//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-//        }
-//    }
-//
-//    public void leavePetShop(String visitorName) throws ResponseException {
-//        try {
-//            var action = new Action(Action.Type.EXIT, visitorName);
-//            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-//        } catch (IOException ex) {
-//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-//        }
-//    }
-
 }

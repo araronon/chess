@@ -25,7 +25,6 @@ public class ChessClient implements NotificationHandler {
     private State observedstate = State.NOTOBSERVINGGAME;
     private String authToken;
     private int globalGameID;
-    private ChessGame globalGame;
     private HashMap<String, GameData> numberToId = new HashMap<>();
     private String globalTeamColor;
     private GameData globalGameData;
@@ -409,9 +408,6 @@ public class ChessClient implements NotificationHandler {
         throw new ResponseException("Expected: no additional parameters");
     }
 
-
-
-
     public void printBoard(ChessGame game, String playerColor) {
         ChessBoard board = game.getBoard();
         String boardString = "";
@@ -482,7 +478,6 @@ public class ChessClient implements NotificationHandler {
             rowend = 9;
             rowcontrol = 1;
         }
-
         boardString = boardString + boardLabelString;
         int displaycol = 0;
         for (int row = rowstart; (rowcontrol > 0 ? row < rowend : row > rowend); row += rowcontrol) {
@@ -539,7 +534,6 @@ public class ChessClient implements NotificationHandler {
             };
         };
     }
-
     private void assertLoggedIn() throws ResponseException {
         if (signinstate == State.LOGGEDOUT) {
             throw new ResponseException("You must log in");
@@ -550,36 +544,24 @@ public class ChessClient implements NotificationHandler {
             throw new ResponseException("You must log out first");
         }
     }
-
     private void assertNotJoinedGame() throws ResponseException {
         if (gamestate == State.JOINEDGAME) {
             throw new ResponseException("You've already joined a game");
         }
     }
-
     private void assertJoinedGame() throws ResponseException {
         if (gamestate == State.NOTJOINEDGAME) {
             throw new ResponseException("You need to join a game first");
         }
     }
-
     private void assertNotObservingGame() throws ResponseException {
         if (observedstate == State.OBSERVINGGAME) {
             throw new ResponseException("You're already observing a game");
         }
     }
-
-    private void assertObservingGame() throws ResponseException {
-        if (observedstate == State.NOTOBSERVINGGAME) {
-            throw new ResponseException("You need to be observing a game first");
-        }
-    }
-
     private void assertInGamePlay() throws ResponseException {
         if ((observedstate == State.NOTOBSERVINGGAME) && (gamestate == State.NOTJOINEDGAME)) {
             throw new ResponseException("To leave a game you need to be participating in a game");
         }
     }
-
-
 }
