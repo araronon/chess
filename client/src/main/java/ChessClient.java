@@ -64,7 +64,7 @@ public class ChessClient implements NotificationHandler {
             return;
         }
         System.out.println("\n");
-        printBoard(globalGameData.game(), globalTeamColor);
+        highlightBoard(null,globalGameData.game(), globalTeamColor);
         System.out.println("\n");
         printPrompt();
     }
@@ -155,7 +155,7 @@ public class ChessClient implements NotificationHandler {
     public String redrawBoard() throws ResponseException {
         assertLoggedIn();
         assertInGamePlay();
-        printBoard(globalGameData.game(), globalTeamColor);
+        highlightBoard(null,globalGameData.game(), globalTeamColor);
         return "";
     }
 
@@ -176,6 +176,10 @@ public class ChessClient implements NotificationHandler {
             int cols = colstart - 'A' + 1;
             int rows = rowstart - '0';
             ChessPosition desiredPosition = new ChessPosition(rows,cols);
+            ChessBoard board = globalGameData.game().getBoard();
+            if (globalGameData.game().getBoard().getPiece(desiredPosition) == null) {
+                throw new ResponseException("No piece at this position.");
+            }
             highlightBoard(desiredPosition, globalGameData.game(), globalTeamColor);
             return String.format("Printing highlighted board.");
         }
@@ -399,7 +403,7 @@ public class ChessClient implements NotificationHandler {
                     wsserver.joinGame(visitorName, authToken, gameData.gameID());
                     observedstate = State.OBSERVINGGAME;
                     globalGameID = gameData.gameID();
-                    printBoard(numberToId.get(gameNumber).game(), "WHITE");
+                    highlightBoard(null,numberToId.get(gameNumber).game(), "WHITE");
                     return String.format("Observing game %s from the white perspective.", gameNumber);
                 }
             }
@@ -453,11 +457,11 @@ public class ChessClient implements NotificationHandler {
         System.out.print(boardString);
     }
 
-    public void highlightBoard(ChessPosition chessPosition, ChessGame game, String playerColor) throws ResponseException {
+    public void highlightBoard(ChessPosition chessPosition, ChessGame game, String playerColor) {
+        boolean highlightflag = true;
+        if (chessPosition == null)
+            highlightflag = false;
         ChessBoard board = game.getBoard();
-        if (game.getBoard().getPiece(chessPosition) == null) {
-            throw new ResponseException("No piece at this position.");
-        }
         Collection<ChessMove> validMoves = game.validMoves(chessPosition);
         String boardString = "";
         String background = "";
@@ -492,13 +496,15 @@ public class ChessClient implements NotificationHandler {
                     background = SET_BG_COLOR_LIGHT_GREY;
                 }
                 ChessPosition currentPosition = new ChessPosition(row, displaycol);
-                if (currentPosition.equals(chessPosition)) {
-                    background += SET_BG_COLOR_BLUE;
-                }
-                for (ChessMove move : validMoves) {
-                    ChessPosition validPosition = move.getEndPosition();
-                    if (validPosition.equals(currentPosition)) {
+                if (highlightflag) {
+                    if (currentPosition.equals(chessPosition)) {
                         background += SET_BG_COLOR_BLUE;
+                    }
+                    for (ChessMove move : validMoves) {
+                        ChessPosition validPosition = move.getEndPosition();
+                        if (validPosition.equals(currentPosition)) {
+                            background += SET_BG_COLOR_BLUE;
+                        }
                     }
                 }
                 String piece = checkPiece(board.getPiece(currentPosition));
