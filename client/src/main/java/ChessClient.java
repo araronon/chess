@@ -441,7 +441,7 @@ public class ChessClient implements NotificationHandler {
                     validMoves = game.validMoves(chessPosition);
                     for (ChessMove move : validMoves) {
                         ChessPosition validPosition = move.getEndPosition();
-                        if (validPosition.equals(currentPosition)) { background += SET_BG_COLOR_BLUE;}
+                        if (validPosition.equals(currentPosition)) {background += SET_BG_COLOR_BLUE;}
                     }
                 }
                 String piece = checkPiece(board.getPiece(currentPosition));
