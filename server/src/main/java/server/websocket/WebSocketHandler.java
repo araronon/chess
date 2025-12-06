@@ -4,7 +4,6 @@ import chess.ChessMove;
 import chess.ChessPosition;
 import chess.InvalidMoveException;
 import dataaccess.*;
-import jakarta.websocket.*;
 import com.google.gson.Gson;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
