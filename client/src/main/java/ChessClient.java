@@ -1,19 +1,14 @@
-
 import java.util.*;
-
 import chess.*;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import model.*;
 import client.ResponseException;
 import client.ServerFacade;
-import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
-
-
 import static ui.EscapeSequences.*;
 
 public class ChessClient implements NotificationHandler {
@@ -72,13 +67,11 @@ public class ChessClient implements NotificationHandler {
     public void run() {
         System.out.println(" Welcome to chess. Sign in to start.");
         System.out.print(help());
-
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
             printPrompt();
             String line = scanner.nextLine();
-
             try {
                 result = eval(line);
                 System.out.println(result);
@@ -121,7 +114,6 @@ public class ChessClient implements NotificationHandler {
                 case "listgames" -> listGames(params);
                 case "joingame" -> joinGame(params);
                 case "observegame" -> observeGame(params);
-                // implement in gameplay
                 case "redraw" -> redrawBoard();
                 case "leave" -> leaveGame();
                 case "makemove" -> makeMove(params);
@@ -137,7 +129,6 @@ public class ChessClient implements NotificationHandler {
         return "Error: " + ex.getMessage();
     }
     }
-
     public String resign() throws ResponseException {
         assertLoggedIn();
         assertJoinedGame();
@@ -147,18 +138,15 @@ public class ChessClient implements NotificationHandler {
         if (!confirmation.equals("y")) {
             return "Resignation not confirmed.";
         }
-
         wsserver.resign(visitorName, authToken, globalGameID);
         return "";
     }
-
     public String redrawBoard() throws ResponseException {
         assertLoggedIn();
         assertInGamePlay();
         highlightBoard(null,globalGameData.game(), globalTeamColor);
         return "";
     }
-
     public String highlight(String... params) throws ResponseException {
         assertLoggedIn();
         assertInGamePlay();
@@ -185,13 +173,9 @@ public class ChessClient implements NotificationHandler {
         }
         throw new ResponseException("Expected: <chessposition>");
     }
-
     public String unrecognizedCmd() {
-        return """
-                Command not recognized. Type "help" for a list of possible commands
-                """;
+        return "Command not recognized. Type <help> for a list of possible command";
     }
-
     public String help() {
         if (signinstate == State.LOGGEDOUT) {
             return """
@@ -224,7 +208,6 @@ public class ChessClient implements NotificationHandler {
                 - quit
                 """;
     }
-
     public String makeMove(String ... params) throws ResponseException {
         assertLoggedIn();
         assertJoinedGame();
@@ -411,58 +394,13 @@ public class ChessClient implements NotificationHandler {
         }
         throw new ResponseException("Expected: no additional parameters");
     }
-
-    public void printBoard(ChessGame game, String playerColor) {
-        ChessBoard board = game.getBoard();
-        String boardString = "";
-        String background = "";
-        String boardLabelString = "";
-        int rowstart;
-        int rowend;
-        int rowcontrol;
-        if (playerColor.equals("WHITE")) {
-            boardLabelString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " a "
-                    + " b " + " c " + " d " + " e " + " f " + " g " + " h " + "   " + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
-            rowstart = 8;
-            rowend = 0;
-            rowcontrol = -1;
-        } else {
-            boardLabelString = SET_BG_COLOR_WHITE + "   " + SET_TEXT_COLOR_BLACK + " h "
-                    + " g " + " f " + " e " + " d " + " c " + " b " + " a " + "   " + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
-            rowstart = 1;
-            rowend = 9;
-            rowcontrol = 1;
-        }
-
-        boardString = boardString + boardLabelString;
-        int displaycol = 0;
-        for (int row = rowstart; (rowcontrol > 0 ? row < rowend : row > rowend); row += rowcontrol) {
-            boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row) + RESET_BG_COLOR;
-            for (int col = 1; col < 9; col++) {
-                if (playerColor.equals("BLACK")) {
-                    displaycol = 9 - col;
-                } else {displaycol = col;}
-                if ((row + displaycol) % 2 == 0) {
-                    background = SET_BG_COLOR_DARK_GREEN;
-                } else {
-                    background = SET_BG_COLOR_LIGHT_GREY;
-                }
-                String piece = checkPiece(board.getPiece(new ChessPosition(row, displaycol)));
-                boardString = boardString + background + piece + RESET_BG_COLOR;
-            }
-            boardString = boardString + SET_TEXT_COLOR_BLACK + String.format(SET_BG_COLOR_WHITE + " %d ", row)
-                    + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
-        }
-        boardString = boardString + boardLabelString;
-        System.out.print(boardString);
-    }
-
     public void highlightBoard(ChessPosition chessPosition, ChessGame game, String playerColor) {
         boolean highlightflag = true;
-        if (chessPosition == null)
+        Collection<ChessMove> validMoves;
+        if (chessPosition == null) {
             highlightflag = false;
+        }
         ChessBoard board = game.getBoard();
-        Collection<ChessMove> validMoves = game.validMoves(chessPosition);
         String boardString = "";
         String background = "";
         String boardLabelString = "";
@@ -500,6 +438,7 @@ public class ChessClient implements NotificationHandler {
                     if (currentPosition.equals(chessPosition)) {
                         background += SET_BG_COLOR_BLUE;
                     }
+                    validMoves = game.validMoves(chessPosition);
                     for (ChessMove move : validMoves) {
                         ChessPosition validPosition = move.getEndPosition();
                         if (validPosition.equals(currentPosition)) {
@@ -516,7 +455,6 @@ public class ChessClient implements NotificationHandler {
         boardString = boardString + boardLabelString;
         System.out.print(boardString);
     }
-
     private String checkPiece(ChessPiece piece) {
         if (piece == null) {
             return "   ";
