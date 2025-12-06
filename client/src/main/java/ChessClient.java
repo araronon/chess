@@ -117,8 +117,8 @@ public class ChessClient implements NotificationHandler {
                 // implement in gameplay
                 case "redraw" -> redrawBoard();
                 case "leave" -> leaveGame();
-//                case "makemove" -> makeMove(params);
-//                case "resign" -> resign();
+                case "makemove" -> makeMove(params);
+                case "resign" -> resign();
 //                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
                 default -> unrecognizedCmd();
@@ -131,10 +131,18 @@ public class ChessClient implements NotificationHandler {
     }
     }
 
-    public void redrawBoard() throws ResponseException {
+    public String resign() throws ResponseException {
+        assertLoggedIn();
+        assertJoinedGame();
+        wsserver.resign(visitorName, authToken, globalGameID);
+        return "";
+    }
+
+    public String redrawBoard() throws ResponseException {
         assertLoggedIn();
         assertInGamePlay();
         printBoard(globalGameData.game(), globalTeamColor);
+        return "";
     }
 
     public String unrecognizedCmd() {
@@ -155,7 +163,7 @@ public class ChessClient implements NotificationHandler {
             return """
                 - leave
                 - resign
-                - ... othercommands
+                - 
                 """;
         }
         return """

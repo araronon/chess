@@ -103,7 +103,28 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
         game.makeMove(move);
         // check is in check, is in checkmate
-
+        if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
+            var notification = new NotificationMessage(String.format("%s is now in check.", gameData.blackUsername()));
+            connections.broadcast(session, notification, gameID, false);
+            connections.broadcast(session, notification, gameID, true);
+        }
+        if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
+            var notification = new NotificationMessage(String.format("%s is now in check.", gameData.whiteUsername()));
+            connections.broadcast(session, notification, gameID, false);
+            connections.broadcast(session, notification, gameID, true);
+        }
+        if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            var notification = new NotificationMessage(String.format("%s is now in checkmate.", gameData.blackUsername()));
+            connections.broadcast(session, notification, gameID, false);
+            connections.broadcast(session, notification, gameID, true);
+            game.setGameOver("YES");
+        }
+        if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            var notification = new NotificationMessage(String.format("%s is now in checkmate.", gameData.whiteUsername()));
+            connections.broadcast(session, notification, gameID, false);
+            connections.broadcast(session, notification, gameID, true);
+            game.setGameOver("YES");
+        }
         GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
         gameAccess.updateGame(playerColorString,username,gameID,game);
         var loadgame = new LoadGameMessage(newGameData);
