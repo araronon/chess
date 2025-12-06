@@ -169,7 +169,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gameData = gameAccess.getGame(gameID);
         ChessGame game = gameData.game();
         if (game.getGameOver().equals("YES")) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("You can't resign again. The game is over.");
         }
         String playerColorString = "";
         if (username.equals(gameData.whiteUsername())) {
@@ -180,7 +180,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             playerColorString = "OBSERVER";
         }
         if (playerColorString.equals("OBSERVER")) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("You can't resign as the observer.");
         }
         game.setGameOver("YES");
         GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
